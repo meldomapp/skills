@@ -72,7 +72,7 @@ All of them need the Meldom app running (the process registry lives only there) 
 - `worktree_list` — the project's worktrees with branch, dirty/ahead state, attached chats and running commands.
 - `worktree_remove` — the ONLY way to remove a Meldom worktree. Never `git worktree remove`: `--force` (which a worktree with submodules needs) deletes each submodule's own git dir, and with it any commit that has not reached the main checkout. There is no `worktree_create` — creating one is the user's choice in the app.
 
-To land a worktree end to end, run `/meldom-merge-worktree`. To commit from a chat, run `/meldom-ship` — the ship card is the authorization, never raw git.
+To land a worktree end to end, invoke the `meldom:merge-worktree` skill. To commit from a chat, invoke `meldom:ship` — the ship card is the authorization, never raw git.
 
 ## Attachments
 
