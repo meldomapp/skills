@@ -33,7 +33,7 @@ This is the heavy path — many subagents, a branch, a PR, then a full review pa
 
 3. Create the branch. Hold the draft PR until after the first commit — `gh pr create` fails on a branch with no commits between it and base.
 
-4. Work the frontier with **implementer subagents** (`Agent(subagent_type: "meldom:meldom-worker")`), at the concurrency the Rules allow. Move each ticket to `in_progress` with `mcp__meldom__ticket_batch_update` before spawning, and hand the subagent the ticket body itself — a subagent cannot call meldom, so a ticket id is not a pointer it can follow. Inspect the `{id, success, error?}[]` the batch call returns: it never throws, so an unchecked failure leaves a ticket stranded.
+4. Work the frontier with **implementer subagents** (`Agent(subagent_type: "meldom:meldom-worker")`), at the concurrency the Rules allow. If the provider has no subagents at all — Codex does not — do this work in the current session instead, following the same brief. Move each ticket to `in_progress` with `mcp__meldom__ticket_batch_update` before spawning, and hand the subagent the ticket body itself — a subagent cannot call meldom, so a ticket id is not a pointer it can follow. Inspect the `{id, success, error?}[]` the batch call returns: it never throws, so an unchecked failure leaves a ticket stranded.
 
 5. When a subagent reports success, commit its paths and move the ticket to `done` with a `reason`. Open the draft PR here if it does not exist yet, pointing at the PRD and listing the child ticket keys. If the subagent reports failure, do **not** commit and do **not** mark it done — leave it `in_progress`, record why, and carry it to the final summary. The frontier must never advance onto a broken base.
 

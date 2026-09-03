@@ -2,8 +2,6 @@
 name: meldom-worker
 description: Implements a single meldom issue using TDD. Reads codebase, writes failing tests first, then minimal implementation, runs tests. Does not commit or call meldom tools. Returns a summary of changes.
 model: sonnet
-skills:
-  - tdd
 ---
 
 # Worker Agent

@@ -124,7 +124,9 @@ for (const file of allFiles(ROOT)) {
 // nothing substitutes ships to the user verbatim.
 for (const file of allFiles(ROOT)) {
     const rel = relative(ROOT, file);
-    if (rel.startsWith('scripts/')) continue;
+    // This file NAMES the banned strings in order to ban them, so it checks itself by identity rather than by
+    // path — a second script under `scripts/` gets no exemption.
+    if (rel === join('scripts', 'validate.mjs')) continue;
     let content;
     try {
         content = readFileSync(file, 'utf8');

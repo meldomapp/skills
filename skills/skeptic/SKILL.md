@@ -44,7 +44,7 @@ Pathologically skeptical. Constructive, never performative.
 
 ### 3. Adversarial analysis
 
-Spawn 3 parallel `Agent(subagent_type: "Explore")`:
+Spawn 3 parallel `Agent(subagent_type: "Explore")`. If the provider has no subagents at all — Codex does not — do this work in the current session instead, following the same brief.
 
 | Agent                 | Focus                                                                                                                                     |
 | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |

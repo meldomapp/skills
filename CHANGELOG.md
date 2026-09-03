@@ -3,6 +3,14 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.1
+
+- Fix the README's update instructions. `claude plugin install` does not upgrade an installed plugin and
+  `claude plugin marketplace update` does not either — only `claude plugin update` does. Codex updates with
+  `codex plugin marketplace upgrade` alone.
+- `meldom-worker` no longer declares a `tdd` skill the plugin does not ship.
+- `implement-spec`, `skeptic` and `issue-intake` now say what to do when the provider has no subagents.
+
 ## 1.0.0
 
 - First public release. The repository is open; nothing about the plugin's contents changed from 0.2.0.

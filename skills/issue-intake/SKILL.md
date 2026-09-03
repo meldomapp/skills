@@ -24,7 +24,7 @@ Provide concrete options where possible (e.g. "Consistent" / "Intermittent" / "N
 
 ### 2. Explore the codebase in the background
 
-While talking to the user, kick off an Agent (subagent_type=Explore, model=sonnet) in the background to understand the relevant area. The goal is NOT to find a fix — it's to:
+While talking to the user, kick off an Agent (subagent_type=Explore, model=sonnet) in the background to understand the relevant area. If the provider has no subagents at all — Codex does not — do this work in the current session instead, following the same brief. The goal is NOT to find a fix — it's to:
 
 - Learn the domain language used in that area
 - Understand what the feature is supposed to do
