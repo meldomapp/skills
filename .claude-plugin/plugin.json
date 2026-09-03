@@ -1,8 +1,11 @@
 {
     "name": "meldom",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Meldom's own agent workflows: driving the ticket board, shipping, landing worktrees, and the rest of how Meldom is meant to be worked.",
-    "author": { "name": "Meldom", "url": "https://meldom.app" },
+    "author": {
+        "name": "Meldom",
+        "url": "https://meldom.app"
+    },
     "license": "MIT",
     "repository": "https://github.com/meldomapp/skills",
     "skills": "./skills/"
