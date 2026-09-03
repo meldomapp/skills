@@ -77,7 +77,7 @@ one of those becomes a phantom hunk in the next sync.
 
 ### 3. Invocation
 
-Upstream's own convention is in `/tmp/mp-skills/.agents/invocation.md`. A user-invoked skill sets
+Upstream's own convention is [`.agents/invocation.md`](https://github.com/mattpocock/skills/blob/main/.agents/invocation.md). A user-invoked skill sets
 `disable-model-invocation: true` in `SKILL.md` **and** `policy.allow_implicit_invocation: false` in
 `agents/openai.yaml`; a model-invoked skill sets neither. The two must always agree, and `scripts/validate.mjs`
 enforces it.

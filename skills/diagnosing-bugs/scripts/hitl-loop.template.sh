@@ -22,11 +22,16 @@ step() {
   read -r -p "    [Enter when done] " _
 }
 
+# Names every `capture` has filled, so the epilogue can print them without knowing
+# what you called them. Rename or remove the examples freely.
+CAPTURED=()
+
 capture() {
   local var="$1" question="$2" answer
   printf '\n>>> %s\n' "$question"
   read -r -p "    > " answer
   printf -v "$var" '%s' "$answer"
+  CAPTURED+=("$var")
 }
 
 # --- edit below ---------------------------------------------------------
@@ -40,5 +45,6 @@ capture ERROR_MSG "Paste the error message (or 'none'):"
 # --- edit above ---------------------------------------------------------
 
 printf '\n--- Captured ---\n'
-printf 'ERRORED=%s\n' "$ERRORED"
-printf 'ERROR_MSG=%s\n' "$ERROR_MSG"
+for _var in ${CAPTURED[@]+"${CAPTURED[@]}"}; do
+  printf '%s=%s\n' "$_var" "${!_var}"
+done

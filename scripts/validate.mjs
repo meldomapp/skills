@@ -5,7 +5,7 @@
 // No dependencies on purpose: this runs on a bare `node` in CI, before anything is installed.
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
+import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -134,12 +134,40 @@ for (const name of skillNames) {
     }
 }
 
+// --- Agents ---------------------------------------------------------------------------------------------
+
+// The two subagents ship with the plugin, so they run on whatever model the user's harness gives them. A
+// `model:` pin would silently override that with one the maintainer happened to prefer — PORTING.md rule 6
+// bans it, and nothing else checks.
+for (const agentFile of ['meldom-reviewer.md', 'meldom-worker.md']) {
+    let content;
+    try {
+        content = readFileSync(join(ROOT, 'agents', agentFile), 'utf8');
+    } catch {
+        fail(`agents/${agentFile}: missing`);
+        continue;
+    }
+    const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/.exec(content)?.[1];
+    if (frontmatter === undefined) {
+        fail(`agents/${agentFile}: has no frontmatter block`);
+        continue;
+    }
+    if (!/^name:\s*\S/m.test(frontmatter)) fail(`agents/${agentFile}: has no name`);
+    if (!/^description:\s*\S/m.test(frontmatter)) fail(`agents/${agentFile}: has no description`);
+    if (/^model:\s*\S/m.test(frontmatter)) {
+        fail(`agents/${agentFile}: pins "model:" — an agent must run on whatever model the user's harness provides`);
+    }
+}
+
 // Claude does not load a skill nested deeper than `skills/<name>/SKILL.md`, so one that sits deeper is
 // invisible on that provider while working fine on Codex — the worst kind of difference to debug.
 for (const file of allFiles(ROOT)) {
     const rel = relative(ROOT, file);
     if (!rel.endsWith('SKILL.md')) continue;
-    if (!/^skills\/[^/]+\/SKILL\.md$/.test(rel)) fail(`${rel}: a SKILL.md must sit exactly at skills/<name>/SKILL.md`);
+    // `relative()` uses the platform separator, so compare on a normalized copy: a hardcoded `/` would fail
+    // every skill on Windows and take this file's own self-exemption below with it.
+    const posix = rel.split(sep).join('/');
+    if (!/^skills\/[^/]+\/SKILL\.md$/.test(posix)) fail(`${posix}: a SKILL.md must sit exactly at skills/<name>/SKILL.md`);
 }
 
 // --- Banned strings ------------------------------------------------------------------------------------
@@ -216,7 +244,7 @@ for (const name of skillNames) {
     }
     // Scoped to a TABLE ROW, not the whole document: prose elsewhere in the README mentions skills by name
     // (`the ask-meldom map`), so a document-wide search would call a deleted row present.
-    if (readme && !new RegExp(`^\\|\\s*\`${name}\`\\s*\\|`, 'm').test(readme)) {
+    if (!new RegExp(`^\\|\\s*\`${name}\`\\s*\\|`, 'm').test(readme)) {
         fail(`README.md: the skill table has no row for "${name}"`);
     }
 }
@@ -229,7 +257,7 @@ try {
 } catch {
     fail('PORTING.md: missing — it is the divergence ledger every sync reads');
 }
-if (porting) {
+{
     // The paragraph that lists the skills with no upstream source. Everything NOT in it is a port, and a port
     // owes the ledger a `### <name>` section naming its divergences.
     const meldomOnly = /\*\*Meldom-only, no upstream source\.\*\*([\s\S]*?)\r?\n\r?\n/.exec(porting)?.[1] ?? '';

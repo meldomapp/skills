@@ -3,6 +3,25 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.4
+
+Fixes found by reviewing 1.0.3 after it shipped. No behaviour change to any workflow.
+
+- `diagnosing-bugs`' HITL loop script no longer dies at the finish line. Its epilogue printed two hardcoded
+  variable names from outside the `edit below/above` markers, so renaming the example captures — which the
+  instructions invite — left `set -u` killing the script after the human had completed every manual step, losing
+  every answer they had just typed. `capture` now records the names it fills and the epilogue prints whatever
+  is there, so any naming works and removing the examples entirely is fine too.
+- `scripts/validate.mjs` no longer fails on Windows. The `SKILL.md` placement check compared a
+  platform-separator path against a hardcoded `/`, so every skill failed there and the file lost its own
+  self-exemption from the banned-string scan along with it.
+- `scripts/validate.mjs` no longer skips its coverage checks when `README.md` or `PORTING.md` is empty. A
+  truncated file silently passed every router, table and ledger check instead of failing them.
+- `scripts/validate.mjs` now validates the two shipped agents: each needs a name and a description, and neither
+  may pin `model:`. An agent runs on whatever model the user's harness provides; nothing checked before.
+- `PORTING.md` links upstream's invocation convention on GitHub rather than citing a `/tmp` clone path that only
+  exists mid-sync.
+
 ## 1.0.3
 
 Every skill ported from [mattpocock/skills](https://github.com/mattpocock/skills) now drives the Meldom board
