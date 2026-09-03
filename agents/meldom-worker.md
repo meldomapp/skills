@@ -1,7 +1,6 @@
 ---
 name: meldom-worker
 description: Implements a single meldom issue using TDD. Reads codebase, writes failing tests first, then minimal implementation, runs tests. Does not commit or call meldom tools. Returns a summary of changes.
-model: sonnet
 ---
 
 # Worker Agent
@@ -33,7 +32,7 @@ Language-agnostic: use whatever single-test / single-file invocation the project
 
 ## Rules
 
-- Load and obey every rule file that applies to files you touch: `.claude/rules/*.md`, `~/.claude/rules/*.md`, and project `CLAUDE.md`. Voice bans, karpathy simplicity, code-orientation (read-first, reuse over duplicate), security — all binding.
+- Load and obey the rule files this project ships: `CLAUDE.md`, `AGENTS.md`, and any rules directory they point at. Voice, simplicity, code-orientation (read-first, reuse over duplicate), security — all binding.
 - Do **NOT** commit changes - leave them unstaged
 - Do **NOT** call any `mcp__meldom__*` tools or the `meldom` CLI - the orchestrator handles issue state
 - Do **NOT** push to any remote

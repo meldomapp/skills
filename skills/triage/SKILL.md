@@ -42,7 +42,7 @@ Every triaged ticket carries exactly one category and one resolved state. Set fi
 The maintainer invokes `meldom:triage` and describes what they want in natural language. Interpret the request and act. Examples:
 
 - "Show me anything that needs my attention"
-- "Let's look at LOC-… / ticket <id>"
+- "Let's look at KEY-42 / ticket <id>"
 - "Move <id> to ready-for-agent"
 - "What's ready for agents to pick up?"
 

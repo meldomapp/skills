@@ -109,18 +109,7 @@ Tool preference:
 
 **Tag every debug log** with a unique prefix, e.g. `[DEBUG-a4f2]`. Cleanup at the end becomes a single grep. Untagged logs survive; tagged logs die.
 
-### Meldom: flip the debug flag, don't hand-add logs
-
-Meldom ships a debug-logging layer, OFF by default. It is the disciplined version of "log everything and grep": the seams already exist, each line is one dotted **seam** tag (`chat.queue`, `service.ticket`, `http.request`, `sync.pull`, `sse.event`) plus ids/counts/booleans only — never message, prompt, or file content. Prefer flipping the flag over scattering throwaway `console.log` / `logClientIssue` lines.
-
-For an **invisible** bug — wrong UI or state, lost data, "it just disappeared" — run this before you start reading code:
-
-1. **Reproduce** — ask the user to trigger the bug. Debug seam logging is always on (server and frontend), so the trace is captured with no flag to set.
-2. **Read** `~/.meldom/logs/server-*.log` and `~/.meldom/logs/client-*.log` (`cat`; there is no tail CLI).
-3. **Find the seam where expected != actual** — e.g. "saved 1, restored 0". That line is the failure boundary.
-4. **Fix.**
-
-Seam catalog and line shape live in [docs/logging.md](../../../docs/logging.md) (`## Debug logging`).
+**When the app under test runs as a meldom command**, read its output with `mcp__meldom__command_output` (find the command with `mcp__meldom__command_list`) rather than asking the user to paste logs — the dev server's stdout and stderr are already captured there, so a probe you add shows up without a restart or a copy-paste round trip.
 
 **Perf branch.** For performance regressions, logs are usually wrong. Instead: establish a baseline measurement (timing harness, `performance.now()`, profiler, query plan), then bisect. Measure first, fix second.
 

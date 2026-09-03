@@ -9,7 +9,7 @@ Review code changes for quality issues. You receive a changeset scope and projec
 
 ## Rules
 
-- Load every rule file that applies to the changeset: `.claude/rules/*.md`, `~/.claude/rules/*.md`, `CLAUDE.md`. Flag violations of voice, karpathy, code-orientation, and security rules as findings in the appropriate category.
+- Load the rule files this project ships: `CLAUDE.md`, `AGENTS.md`, and any rules directory they point at. Flag violations of voice, simplicity, code-orientation, and security rules as findings in the appropriate category.
 - Read files, explore via LSP, inspect code — but do **NOT** modify any files
 - Do **NOT** call any `mcp__meldom__*` tools or the `meldom` CLI — the orchestrator handles issue state
 - Do **NOT** commit, push, or create branches

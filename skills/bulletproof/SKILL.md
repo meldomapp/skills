@@ -22,7 +22,7 @@ Structured rigor pipeline for high-stakes changes. Skip for prototypes, trivial 
 ### Phase 1 - Analyze
 
 1. Announce activation. Confirm task understanding from conversation context.
-2. Read all relevant files. Check `lsp_servers` once (fall back to Grep if unavailable). Map dependencies via `lsp_find_references` + `lsp_goto_definition`. Identify blast radius.
+2. Read all relevant files. Use the harness's LSP tool where it has one (find references, go to definition, diagnostics), Grep where it does not. Map dependencies. Identify blast radius.
 3. **Assumption audit**: list every assumption with STATUS: verified / unverified / challenged.
 4. **Pre-mortem**: failure scenarios + mitigations, ranked by likelihood x impact.
 
@@ -55,7 +55,7 @@ See [cross-validation](references/cross-validation.md) for full verifier and sec
 
 ### Phase 5 - Evidence
 
-14. Fresh tests, fresh build, `lsp_diagnostics` on affected files, `lsp_diagnostics_directory` on project root, `lsp_find_references` on removed/renamed symbols. See [evidence template](references/evidence-template.md).
+14. Fresh tests, fresh build, diagnostics on the affected files and on the project root, find-references on removed/renamed symbols. See [evidence template](references/evidence-template.md).
 15. Compile evidence report with confidence level.
 
 ### Phase 6 - Deliver
@@ -65,7 +65,7 @@ See [cross-validation](references/cross-validation.md) for full verifier and sec
 
 ## Completion Gate
 
-ALL must be true: tests pass (fresh), build clean (fresh), two-pass review 0 CRITICAL open, independent reviewer approved, all assumptions verified or flagged, pre-mortem addressed, `lsp_diagnostics_directory` 0 errors project-wide (or "LSP unavailable" noted), `lsp_find_references` 0 dangling on removed/renamed symbols.
+ALL must be true: tests pass (fresh), build clean (fresh), two-pass review 0 CRITICAL open, independent reviewer approved, all assumptions verified or flagged, pre-mortem addressed, project-wide diagnostics 0 errors (or "LSP unavailable" noted), 0 dangling references on removed/renamed symbols.
 
 **Confidence:** Report as `LEVEL (N/100)`. HIGH = 85-100, all pass + no open assumptions. MEDIUM = 60-84, most pass + minor gaps. LOW = 0-59, significant gaps. Default MEDIUM when any assumption unverifiable. Score deductions: -5 per unverified assumption, -10 per unresolved reviewer finding, -15 per failing check, -5 per outstanding pre-mortem/edge case.
 

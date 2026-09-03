@@ -107,6 +107,31 @@ for (const name of skillNames) {
     const declared = /^name:\s*(.+)$/m.exec(frontmatter)?.[1]?.trim().replace(/^["']|["']$/g, '');
     if (declared !== name) fail(`skills/${name}/SKILL.md: frontmatter name is "${declared ?? '(none)'}", must equal the folder name "${name}"`);
     if (!/^description:\s*\S/m.test(frontmatter)) fail(`skills/${name}/SKILL.md: has no description`);
+
+    // Codex reads `agents/openai.yaml` for the display name it shows in the skill picker, and for the policy
+    // that hides a user-invoked skill from the model. Without the file a skill is nameless there, and a
+    // user-invoked one is silently reachable by the model.
+    const yamlPath = join(skillsDir, name, 'agents', 'openai.yaml');
+    let yaml;
+    try {
+        yaml = readFileSync(yamlPath, 'utf8');
+    } catch {
+        fail(`skills/${name}/agents/openai.yaml: missing`);
+        continue;
+    }
+    if (!/^[ \t]+display_name:[ \t]*\S/m.test(yaml)) fail(`skills/${name}/agents/openai.yaml: has no interface.display_name`);
+    if (!/^[ \t]+short_description:[ \t]*\S/m.test(yaml)) fail(`skills/${name}/agents/openai.yaml: has no interface.short_description`);
+
+    // The two providers express "user-invoked" separately, so they can drift apart. A skill is user-invoked in
+    // BOTH or neither: half-configured means the human types it on one provider while the model fires it on
+    // the other, which is exactly the accident the flag exists to prevent.
+    const userInvokedClaude = /^disable-model-invocation:\s*true\s*$/m.test(frontmatter);
+    const userInvokedCodex = /^[ \t]+allow_implicit_invocation:[ \t]*(?:false|False|FALSE|no|off)[ \t]*$/m.test(yaml);
+    if (userInvokedClaude !== userInvokedCodex) {
+        fail(
+            `skills/${name}: invocation disagrees between providers — SKILL.md ${userInvokedClaude ? 'sets' : 'omits'} "disable-model-invocation: true" but agents/openai.yaml ${userInvokedCodex ? 'sets' : 'omits'} "policy.allow_implicit_invocation: false"`,
+        );
+    }
 }
 
 // Claude does not load a skill nested deeper than `skills/<name>/SKILL.md`, so one that sits deeper is
@@ -119,22 +144,103 @@ for (const file of allFiles(ROOT)) {
 
 // --- Banned strings ------------------------------------------------------------------------------------
 
-// Leftovers from when the app copied these skills onto a user's machine: an ownership marker it stamped, and
-// the placeholder it substituted at publish time. Neither means anything to a plugin, and a `{{VERSION}}` that
-// nothing substitutes ships to the user verbatim.
+// Each of these shipped to a user at least once, and each is invisible on the user's side: a dead tracker key,
+// a path into a repo they don't have, a setup step for a tracker this plugin doesn't use. All of them are gone
+// now; this list is what stops them coming back through the next upstream sync.
+const BANNED = [
+    ['meldom-bundled', "the app's old ownership marker"],
+    ['{{VERSION}}', 'nothing substitutes it in a plugin'],
+    ['LOC-', 'a dead tracker key; the ticket-key placeholder is KEY-N'],
+    ['.out-of-scope/', 'the out-of-scope KB is meldom notes, not a directory'],
+    ['gh issue', 'meldom is the tracker; there is no GitHub issue surface'],
+    ['docs/agents/issue-tracker.md', "another tracker's config file; meldom needs none"],
+    // The whole `lsp_*` family, not one member of it: the rule is "name no harness-specific tool", and
+    // `lsp_servers` or `lsp_find_references` would sail past a check that only knows `lsp_diagnostics`.
+    ['lsp_', 'a harness-specific tool name; say "the harness LSP tool" instead'],
+    // Any path under the app's runtime dir, not just the log one.
+    ['~/.meldom/', "the Meldom app's own runtime path, meaningless on a user's machine"],
+    // This repo's own ticket prefix. Meaningless on a user's board, and the ledger's rule 5 bans it.
+    ['MEL-', "this repo's own ticket prefix; the placeholder in prose is KEY-N"],
+    ['setup-matt-pocock-skills', 'a tombstoned upstream skill this plugin does not ship'],
+];
+
+// `PORTING.md` and `CHANGELOG.md` legitimately NAME what was removed: the ledger explains each divergence, and
+// history cannot be rewritten to hide a string it recorded. Everything else is checked.
+const BANNED_EXEMPT = new Set(['PORTING.md', 'CHANGELOG.md']);
+
 for (const file of allFiles(ROOT)) {
     const rel = relative(ROOT, file);
     // This file NAMES the banned strings in order to ban them, so it checks itself by identity rather than by
     // path — a second script under `scripts/` gets no exemption.
     if (rel === join('scripts', 'validate.mjs')) continue;
+    if (BANNED_EXEMPT.has(rel)) continue;
     let content;
     try {
         content = readFileSync(file, 'utf8');
     } catch {
         continue;
     }
-    if (content.includes('meldom-bundled')) fail(`${rel}: contains "meldom-bundled" — the app's old ownership marker`);
-    if (content.includes('{{VERSION}}')) fail(`${rel}: contains "{{VERSION}}" — nothing substitutes it in a plugin`);
+    for (const [needle, why] of BANNED) {
+        if (content.includes(needle)) fail(`${rel}: contains "${needle}" — ${why}`);
+    }
+}
+
+// --- The map, the README, and the ledger -----------------------------------------------------------------
+
+// A skill nobody can find is a skill nobody runs. `ask-meldom` is the map an agent loads when it is unsure
+// which skill fits, and the README table is the same list for a human browsing the repo.
+const routerPath = join('skills', 'ask-meldom', 'SKILL.md');
+let router = '';
+try {
+    router = readFileSync(join(ROOT, routerPath), 'utf8');
+} catch {
+    fail(`${routerPath}: missing — it is the map over every skill`);
+}
+let readme = '';
+try {
+    readme = readFileSync(join(ROOT, 'README.md'), 'utf8');
+} catch {
+    fail('README.md: missing');
+}
+// A bare `includes` would let a LONGER name satisfy a shorter one: `meldom:implement-spec` contains
+// `meldom:implement`, so dropping every `implement` mention from the router would still pass. Require a
+// non-name character (or the end of the text) right after the name, so each match stands on its own.
+function namesSkill(text, name) {
+    return new RegExp(`meldom:${name}(?![a-z0-9-])`).test(text);
+}
+
+for (const name of skillNames) {
+    // The router does not list itself; everything else must be in it.
+    if (name !== 'ask-meldom' && router && !namesSkill(router, name)) {
+        fail(`${routerPath}: never names "meldom:${name}" — a skill missing from the map is one nobody can find`);
+    }
+    // Scoped to a TABLE ROW, not the whole document: prose elsewhere in the README mentions skills by name
+    // (`the ask-meldom map`), so a document-wide search would call a deleted row present.
+    if (readme && !new RegExp(`^\\|\\s*\`${name}\`\\s*\\|`, 'm').test(readme)) {
+        fail(`README.md: the skill table has no row for "${name}"`);
+    }
+}
+
+// The ledger is the single source of truth for "what we changed and why". A mapped skill with no section there
+// makes the next sync unable to tell a real upstream change from a deliberate local edit.
+let porting = '';
+try {
+    porting = readFileSync(join(ROOT, 'PORTING.md'), 'utf8');
+} catch {
+    fail('PORTING.md: missing — it is the divergence ledger every sync reads');
+}
+if (porting) {
+    // The paragraph that lists the skills with no upstream source. Everything NOT in it is a port, and a port
+    // owes the ledger a `### <name>` section naming its divergences.
+    const meldomOnly = /\*\*Meldom-only, no upstream source\.\*\*([\s\S]*?)\r?\n\r?\n/.exec(porting)?.[1] ?? '';
+    for (const name of skillNames) {
+        if (meldomOnly.includes(`\`${name}\``)) continue;
+        // `\b` matches before a hyphen, so `^### implement\b` would accept `### implement-spec`. Demand a
+        // space or end of line after the name, the way the real headings are written.
+        if (!new RegExp(`^### ${name}(?: |$)`, 'm').test(porting)) {
+            fail(`PORTING.md: no "### ${name}" divergence section — a ported skill must say what it changed, or be listed as Meldom-only`);
+        }
+    }
 }
 
 // --- Report --------------------------------------------------------------------------------------------

@@ -42,7 +42,7 @@ for it by name.
 
 | Skill                           | What it does                                                                          | Invoked by    |
 | ------------------------------- | ------------------------------------------------------------------------------------- | ------------- |
-| `ask-meldom`                    | The map: which skill or flow fits your situation, and how they connect.               | user-invoked  |
+| `ask-meldom`                    | The map: which skill or flow fits your situation, and how they connect.               | model-invoked |
 | `to-tickets`                    | Turn a plan or conversation into a spec parent plus vertical-slice child tickets.     | model-invoked |
 | `implement`                     | Build a ticket or spec in the current session, test-first.                            | model-invoked |
 | `implement-spec`                | Land a whole PRD as one PR with parallel subagents.                                   | user-invoked  |
@@ -53,7 +53,7 @@ for it by name.
 | `grilling`                      | Stress-test a plan or decision with a relentless interview.                           | model-invoked |
 | `grill-with-docs`               | Grill a plan against the codebase, capturing terms and decisions as docs.             | model-invoked |
 | `explore-approaches`            | Generate several radically different approaches in parallel, then compare them.       | model-invoked |
-| `code-review`                   | Review changes on two axes: repo coding standards, and the originating spec.          | model-invoked |
+| `code-review`                   | Review changes on two axes: repo coding standards, and the originating ticket.        | model-invoked |
 | `bulletproof`                   | Maximum-rigor pipeline: assumption audit, adversarial pass, cross-validation.         | model-invoked |
 | `diagnosing-bugs`               | The diagnosis loop for hard bugs and performance regressions.                         | model-invoked |
 | `codebase-design`               | Shared vocabulary for designing deep modules, and where a seam belongs.               | model-invoked |
@@ -62,23 +62,35 @@ for it by name.
 | `resolving-merge-conflicts`     | Resolve an in-progress git merge or rebase conflict.                                  | model-invoked |
 | `writing-for-agents`            | Writing documents for agents: skills, AGENTS.md, CLAUDE.md.                           | model-invoked |
 | `teach`                         | Teach a concept or skill, in this workspace, at the right depth.                      | user-invoked  |
-| `handoff`                       | Compact the conversation into a handoff document for another agent.                   | model-invoked |
+| `handoff`                       | Compact the conversation into a handoff document, as a file and a meldom note.        | model-invoked |
 | `wait-what`                     | Stop — that last message did not land. Re-pitch it.                                   | user-invoked  |
 | `retro`                         | Retrospective on a session that went badly, when the environment is the suspect.      | user-invoked  |
 | `ship`                          | Commit and push from a Meldom chat through the ship review card.                      | model-invoked |
 | `merge-worktree`                | Land a worktree end to end and remove it through `worktree_remove`.                   | model-invoked |
-| `research`                      | Investigate a question against primary sources and capture it as a Markdown file.     | model-invoked |
+| `research`                      | Investigate a question against primary sources; capture it as a file and a note.      | model-invoked |
 | `wizard`                        | Generate an interactive bash wizard for steps only a human can perform.               | model-invoked |
-| `setup-matt-pocock-skills`      | Configure a repo for these skills: issue tracker, triage labels, domain docs.         | user-invoked  |
 | `loop-me`                       | Grill you about the specs for the workflows you want to build in this workspace.      | user-invoked  |
 | `grill-me`                      | The same relentless interview as `grill-with-docs`, but stateless — no repo needed.   | user-invoked  |
 | `to-questionnaire`              | Turn a decision you cannot answer into a questionnaire for someone else to fill in.   | user-invoked  |
 
+## Customizing and syncing
+
+Most of these skills are ports of [mattpocock/skills](https://github.com/mattpocock/skills), adapted to drive
+the Meldom board instead of a generic issue tracker. [PORTING.md](PORTING.md) is the ledger: one section per
+ported skill, listing every intentional difference and the reason for it, plus the global rules (namespacing,
+invocation, punctuation) that hold across all of them.
+
+If you change a ported skill, update its ledger section in the same commit. That is what lets the next upstream
+sync tell a real upstream change from a deliberate local edit, instead of guessing.
+
 ## Contributing
 
 `node scripts/validate.mjs` is what CI runs. It checks that both manifests parse and agree on name and version,
-that both marketplace files reference the plugin, and that every `skills/<name>/SKILL.md` declares a
-`description` and a `name` equal to its folder. Run it before opening a pull request.
+that both marketplace files reference the plugin, that every `skills/<name>/SKILL.md` declares a
+`description` and a `name` equal to its folder, and that every skill carries an `agents/openai.yaml` whose
+Codex policy agrees with the Claude `disable-model-invocation` flag. It also checks that every skill has a row
+in the table above, an entry in the `ask-meldom` map, and a section in [PORTING.md](PORTING.md). Run it before
+opening a pull request.
 
 ## Credits
 

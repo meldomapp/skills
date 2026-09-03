@@ -15,7 +15,7 @@ Wayfinder is **planning** by default: each ticket resolves a decision, and the m
 
 ## Refer by name
 
-Every map and ticket is a meldom ticket, so it has a **title** and a key (`LOC-42`). In everything the human reads — narration, the map's Decisions-so-far — refer to it by its title, never by a bare id, number, or slug. A wall of `LOC-42, LOC-43, LOC-44` is illegible; titles read at a glance. The key doesn't vanish — it rides alongside the title — but it never stands in for it.
+Every map and ticket is a meldom ticket, so it has a **title** and a key (`KEY-42`). In everything the human reads — narration, the map's Decisions-so-far — refer to it by its title, never by a bare id, number, or slug. A wall of `KEY-42, KEY-43, KEY-44` is illegible; titles read at a glance. The key doesn't vanish — it rides alongside the title — but it never stands in for it.
 
 ## The Map
 
@@ -42,7 +42,7 @@ The whole map at low resolution, loaded once per session via `ticket_view(map)`.
 
 <!-- the index — one line per closed ticket: enough to judge relevance, then open the ticket for the detail it holds -->
 
-- <closed ticket title> (LOC-N) — <one-line gist of the answer>
+- <closed ticket title> (KEY-N) — <one-line gist of the answer>
 
 ## Not yet specified
 
@@ -63,7 +63,7 @@ Each ticket is a **child ticket** of the map (`parent_id` = the map's id); its m
 <the decision or investigation this ticket resolves>
 ```
 
-Each ticket carries a `wayfinder:<type>` label — one of `research`, `meldom:prototype`, `meldom:grilling`, `task` (see [Ticket Types](#ticket-types)).
+Each ticket carries a `wayfinder:<type>` label — one of `research`, `prototype`, `grilling`, `task` (see [Ticket Types](#ticket-types)).
 
 A session **claims** a ticket by moving it to `in_progress` (`mcp__meldom__ticket_update`), **first**, before any work, so concurrent sessions skip it. An open, un-started ticket is unclaimed.
 
@@ -75,7 +75,7 @@ The answer isn't part of the body — it's recorded on resolution (see [Work thr
 
 Every ticket is either **HITL** — human in the loop, worked _with_ a human who speaks for themselves — or **AFK**, driven by the agent alone. A HITL ticket only resolves through that live exchange; the agent never stands in for the human's side of it (a grilling agent that answers its own questions has broken this).
 
-- **Research** (AFK): Reading documentation, third-party APIs, or local resources like knowledge bases to surface a fact a decision waits on. Resolved by a **subagent** that calls the Skill tool with `research`; capture the summary as a meldom note attached to the ticket (or the map, when it's reference worth keeping). Use when knowledge outside the current working directory is required.
+- **Research** (AFK): Reading documentation, third-party APIs, or local resources like knowledge bases to surface a fact a decision waits on. Resolved by a **subagent** that calls the Skill tool with `meldom:research`; capture the summary as a meldom note attached to the ticket (or the map, when it's reference worth keeping). Use when knowledge outside the current working directory is required.
 - **Prototype** (HITL): Raise the fidelity of the discussion by making a cheap, rough, concrete artifact to react to — an outline, a rough take, a stub, or UI/logic code by calling the Skill tool with `meldom:prototype`. Use when "how should it look" or "how should it behave" is the key question.
 - **Grilling** (HITL): Conversation. The default case. Always call the Skill tool twice, for `meldom:grilling` and `meldom:domain-modeling`.
 - **Task** (HITL or AFK): Manual work that must happen before a _decision_ can be made — nothing to decide, prototype, or research, but the discussion is blocked until it's done. Signing up for a service so its API can be judged, provisioning access, moving data so its shape can be seen. This is the one type that _does_ rather than decides — and it earns its place by unblocking a decision, not by delivering the destination. The agent drives it alone where it can (AFK); otherwise it hands the human a precise checklist (HITL). Resolved when the work is done; the answer records what was done and any resulting facts (credentials location, new URLs, row counts) later tickets depend on.
@@ -113,7 +113,7 @@ User invokes with a loose idea.
 2. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** — the way to the destination is already clear, the whole journey small enough for one session — you don't need a map. Stop and offer to skip it: recommend `meldom:implement` directly (the work is clear) or `meldom:to-tickets` to schedule a multi-session build.
 3. **Create the map** — a parent ticket labelled `wayfinder:map`, `assignee: "human"`, its body Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**.
 4. **Create the tickets you can specify now** as child tickets of the map (`mcp__meldom__ticket_batch_create`, `parent_id` = the map, each with its `wayfinder:<type>` label) — wire blocking with `blocked_by_index` in the same batch. Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog — the **Not yet specified** section.
-5. **Fire the research subagents.** For each `wayfinder:research` ticket you just created, spin up a subagent that calls the Skill tool with `research` to resolve it in parallel, each capturing its findings as a meldom note attached to its ticket.
+5. **Fire the research subagents.** For each `wayfinder:research` ticket you just created, spin up a subagent that calls the Skill tool with `meldom:research` to resolve it in parallel, each capturing its findings as a meldom note attached to its ticket.
 6. Stop — charting is one session's work; it hand-resolves nothing.
 
 ### Work through the map

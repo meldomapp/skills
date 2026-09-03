@@ -7,7 +7,7 @@ CONFIDENCE EVIDENCE:
 - Tests: [PASS/FAIL] - [X/Y passed, output summary]
 - Build: [PASS/FAIL] - [output summary]
 - LSP Diagnostics (per-file): [X errors, Y warnings on affected files]
-- LSP Diagnostics (project-wide): [X errors, Y warnings via lsp_diagnostics_directory]
+- LSP Diagnostics (project-wide): [X errors, Y warnings across the project]
 - LSP Reference Check: [N dangling / all clean / unavailable]
 - Structural Review: [N issues - X critical (all resolved), Y informational]
 - Risk Level: [LOW/MEDIUM/HIGH/CRITICAL]

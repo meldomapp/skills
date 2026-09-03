@@ -1,16 +1,16 @@
 ---
 name: code-review
-description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
+description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating meldom ticket asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
 ---
 
 Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
 - **Standards**: does the code conform to this repo's documented coding standards?
-- **Spec**: does the code faithfully implement the originating issue / spec?
+- **Spec**: does the code faithfully implement the originating meldom ticket?
 
 Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
 
-The issue tracker should have been provided to you. If `docs/agents/issue-tracker.md` is missing, tell the user to run `meldom:setup-matt-pocock-skills`.
+Meldom is the tracker and its MCP server is already connected — there is nothing to configure first.
 
 ## Process
 
@@ -26,14 +26,17 @@ Before going further, confirm the fixed point resolves (`git rev-parse <fixed-po
 
 Look for the originating spec, in this order:
 
-1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.), fetched via the workflow in `docs/agents/issue-tracker.md`.
-2. A path the user passed as an argument.
-3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
-4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
+1. A ticket key or ULID the user passed as an argument.
+2. The tickets this conversation already tracks — `mcp__meldom__conversation_status`.
+3. A `[A-Z]+-[0-9]+` key in the current branch name.
+4. A spec path the user passed as an argument.
+5. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
+
+Read the ticket with `mcp__meldom__ticket_view({ "id": <id>, "response_format": "detailed" })` — the default `concise` trims the body and caps each relation at 10 rows, which would silently truncate the spec you are reviewing against. Page the body with `body_offset` while it returns one, and page `attachments` / `notes` with `relation` + `relation_offset` when they report a `next_cursor`. Include its `attachments[]` (Read an attached mockup or spec image — it grounds what "as asked for" means) and its attached `notes[]`. Keep the ticket id: step 6 posts the Spec findings back to it.
 
 ### 3. Identify the standards sources
 
-Anything in the repo that documents how code should be written, such as `CODING_STANDARDS.md` or `CONTRIBUTING.md`.
+Anything in the repo that documents how code should be written, such as `CLAUDE.md`, `AGENTS.md`, `CONTRIBUTING.md`, or whatever standards file the repo documents.
 
 On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below: a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:
 
@@ -66,7 +69,7 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 **Spec sub-agent prompt** should include:
 
 - The diff command and commit list.
-- The path or fetched contents of the spec.
+- The ticket body (or the spec file contents), pasted in full — the sub-agent cannot call meldom.
 - The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words."
 
 If the spec is missing, skip the Spec sub-agent and note this in the final report.
@@ -77,11 +80,15 @@ Present the two reports under `## Standards` and `## Spec` headings, verbatim or
 
 End with a one-line summary: total findings per axis, and the worst issue _within each axis_ (if any). Don't pick a single winner across axes: that's the reranking the separation exists to prevent.
 
+### 6. Post the Spec findings to the ticket
+
+When step 2 found a ticket, post the **Spec** section as one comment with `mcp__meldom__comment_create({ "id": <ticket>, "body": "..." })` — the review then lives on the board, not only in this conversation. One comment, the Spec axis only: Standards findings are about the repo, not about what this ticket asked for. Skip this step when no ticket was found.
+
 ## Why two axes
 
 A change can pass one axis and fail the other:
 
 - Code that follows every standard but implements the wrong thing → **Standards pass, Spec fail.**
-- Code that does exactly what the issue asked but breaks the project's conventions → **Spec pass, Standards fail.**
+- Code that does exactly what the ticket asked but breaks the project's conventions → **Spec pass, Standards fail.**
 
 Reporting them separately stops one axis from masking the other.

@@ -93,10 +93,10 @@ Collect fresh output (not cached):
 
 - Fresh test run - capture full output
 - Fresh build - capture full output
-- `lsp_diagnostics` on all affected files
-- `lsp_diagnostics_directory` on project root (catches cross-file issues)
-- `lsp_find_references` on removed/renamed symbols - confirm 0 dangling
-- If no LSP: note "LSP unavailable," rely on build/test/lint
+- Diagnostics on all affected files
+- Diagnostics on the project root (catches cross-file issues)
+- Find-references on removed/renamed symbols - confirm 0 dangling
+- Use the harness's LSP tool where it has one; if there is none, note "LSP unavailable," and rely on build/test/lint/grep
 
 ## Example - Independent verifier catching a real issue
 

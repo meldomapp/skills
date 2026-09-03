@@ -34,7 +34,7 @@ Full pattern catalog: `detection-patterns.md`
 | ------------------ | --------------------------------------------------------------------------------- |
 | Diff scope         | File count, line count, shared code touched, schema migrations, API route changes |
 | Domain context     | Financial/billing, auth/authz, async workers, third-party integrations            |
-| Dependency fan-out | Files that import/reference modified symbols (via `lsp_find_references` or grep)  |
+| Dependency fan-out | Files that import/reference modified symbols (via the harness find-references, or grep)  |
 | Static analysis    | Linter/type-checker errors, anti-pattern matches, complexity thresholds           |
 
 ### Quick Risk Heuristics

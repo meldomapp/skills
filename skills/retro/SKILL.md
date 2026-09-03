@@ -10,7 +10,7 @@ The user has asked for a **retrospective**. You are suggesting improvements to t
 
 1. Call the Skill tool with `meldom:writing-for-agents` for the writing style guide.
 
-2. Read the primary sources for the session the user specifies. For the **current** session you already hold the transcript — use it, do not re-read the log. For a **past** session, the logs live at `~/.claude/projects/<project-slug>/*.jsonl`; they are large, so grep them rather than reading them whole.
+2. Read the primary sources for the session the user specifies. For the **current** session you already hold the transcript — use it, do not re-read the log. For a **past** session, the logs live where the harness puts them: Claude Code at `~/.claude/projects/<project-slug>/*.jsonl`, Codex at `~/.codex/sessions/`, any other harness wherever it says — ask rather than guess. They are large either way, so grep them rather than reading them whole.
 
 3. Look for candidates for improvement in these categories.
 
