@@ -1,6 +1,6 @@
 # Meldom skills
 
-The agent workflows [Meldom](https://meldom.app) is built around, as one plugin for **Claude Code** and
+The agent workflows [Meldom](https://meldom.com) is built around, as one plugin for **Claude Code** and
 **Codex**. Install it once per provider and the same recipes work in the Meldom app and in your own terminal.
 
 Meldom itself ships no skill files and never writes into `~/.claude/skills` or `~/.agents/skills`. This

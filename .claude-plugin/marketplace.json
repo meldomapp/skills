@@ -1,6 +1,6 @@
 {
     "name": "meldom",
-    "owner": { "name": "Meldom", "url": "https://meldom.app" },
+    "owner": { "name": "Meldom", "url": "https://meldom.com" },
     "plugins": [
         {
             "name": "meldom",
