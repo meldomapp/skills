@@ -1,6 +1,6 @@
 {
     "name": "meldom",
-    "version": "1.1.0",
+    "version": "1.0.3",
     "description": "Meldom's own agent workflows: driving the ticket board, shipping, landing worktrees, and the rest of how Meldom is meant to be worked.",
     "author": {
         "name": "Meldom",

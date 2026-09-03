@@ -42,8 +42,7 @@ for it by name.
 
 | Skill                           | What it does                                                                          | Invoked by    |
 | ------------------------------- | ------------------------------------------------------------------------------------- | ------------- |
-| `guide`                         | How Meldom works and how to drive it: tickets, notes, commands, terminals, worktrees. | model-invoked |
-| `using-meldom`                  | Route any task to the right skill chain, then run it.                                 | model-invoked |
+| `ask-meldom`                    | The map: which skill or flow fits your situation, and how they connect.               | user-invoked  |
 | `to-tickets`                    | Turn a plan or conversation into a spec parent plus vertical-slice child tickets.     | model-invoked |
 | `implement`                     | Build a ticket or spec in the current session, test-first.                            | model-invoked |
 | `implement-spec`                | Land a whole PRD as one PR with parallel subagents.                                   | user-invoked  |
@@ -54,8 +53,7 @@ for it by name.
 | `grilling`                      | Stress-test a plan or decision with a relentless interview.                           | model-invoked |
 | `grill-with-docs`               | Grill a plan against the codebase, capturing terms and decisions as docs.             | model-invoked |
 | `explore-approaches`            | Generate several radically different approaches in parallel, then compare them.       | model-invoked |
-| `skeptic`                       | Adversarial review: challenge assumptions, hunt edge cases, poke holes.               | model-invoked |
-| `review`                        | Review changes for correctness, security, quality, reuse — and against their spec.    | model-invoked |
+| `code-review`                   | Review changes on two axes: repo coding standards, and the originating spec.          | model-invoked |
 | `bulletproof`                   | Maximum-rigor pipeline: assumption audit, adversarial pass, cross-validation.         | model-invoked |
 | `diagnosing-bugs`               | The diagnosis loop for hard bugs and performance regressions.                         | model-invoked |
 | `codebase-design`               | Shared vocabulary for designing deep modules, and where a seam belongs.               | model-invoked |
@@ -69,6 +67,12 @@ for it by name.
 | `retro`                         | Retrospective on a session that went badly, when the environment is the suspect.      | user-invoked  |
 | `ship`                          | Commit and push from a Meldom chat through the ship review card.                      | model-invoked |
 | `merge-worktree`                | Land a worktree end to end and remove it through `worktree_remove`.                   | model-invoked |
+| `research`                      | Investigate a question against primary sources and capture it as a Markdown file.     | model-invoked |
+| `wizard`                        | Generate an interactive bash wizard for steps only a human can perform.               | model-invoked |
+| `setup-matt-pocock-skills`      | Configure a repo for these skills: issue tracker, triage labels, domain docs.         | user-invoked  |
+| `loop-me`                       | Grill you about the specs for the workflows you want to build in this workspace.      | user-invoked  |
+| `grill-me`                      | The same relentless interview as `grill-with-docs`, but stateless — no repo needed.   | user-invoked  |
+| `to-questionnaire`              | Turn a decision you cannot answer into a questionnaire for someone else to fill in.   | user-invoked  |
 
 ## Contributing
 

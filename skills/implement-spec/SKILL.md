@@ -22,7 +22,7 @@ This is the heavy path — many subagents, a branch, a PR, then a full review pa
   - **Worktrees the user already gave you** → one implementer per worktree, run in the background for real concurrency.
   - **No worktrees (the default)** → **one implementer at a time.** Let it finish, commit it, then start the next. Slower, but every commit is exactly one ticket.
 - **Commit only the paths that ticket touched** (`git add <paths>`), never `git add -A` or `git commit -a`. Guards attribution even when something unexpected is dirty.
-- **Committing from a Meldom chat goes through the ship card**, per `meldom:guide`: call the Skill tool with `meldom:ship` for each commit rather than raw `git commit`. Only commit with raw git when you are not in a Meldom chat.
+- **Committing from a Meldom chat goes through the ship card**: call the Skill tool with `meldom:ship` for each commit rather than raw `git commit`. Only commit with raw git when you are not in a Meldom chat.
 - Subagents never commit and never push. You own the branch.
 
 ## Steps
@@ -39,7 +39,7 @@ This is the heavy path — many subagents, a branch, a PR, then a full review pa
 
 6. Recompute the **frontier** and continue until no ticket is left.
 
-7. Once all tickets are complete, call the Skill tool with `meldom:review` on the PR branch. Fix all issues raised by the review in a single **implementer subagent**. Record each ticket the review's Spec axis confirms with `mcp__meldom__ticket_outcome({ "id": <id>, "outcome": "verified" })`, and any it contradicts as `"failed"`.
+7. Once all tickets are complete, call the Skill tool with `meldom:code-review` on the PR branch. Fix all issues raised by the review in a single **implementer subagent**. Record each ticket the review's Spec axis confirms with `mcp__meldom__ticket_outcome({ "id": <id>, "outcome": "verified" })`, and any it contradicts as `"failed"`.
 
 8. Mark the PR as ready for review, and move the PRD to `done` once every child is `done` or `closed` — parent status never rolls up on its own. Walk upward too: a closed PRD may complete its own parent. Any ticket left `in_progress` from step 5 keeps the PRD open; say so in the summary.
 
