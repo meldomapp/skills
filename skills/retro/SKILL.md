@@ -8,7 +8,7 @@ The user has asked for a **retrospective**. You are suggesting improvements to t
 
 ## Steps
 
-1. Call the Skill tool with `writing-for-agents` for the writing style guide.
+1. Call the Skill tool with `meldom:writing-for-agents` for the writing style guide.
 
 2. Read the primary sources for the session the user specifies. For the **current** session you already hold the transcript — use it, do not re-read the log. For a **past** session, the logs live at `~/.claude/projects/<project-slug>/*.jsonl`; they are large, so grep them rather than reading them whole.
 
@@ -41,4 +41,4 @@ The steering files worth weighing, some per-repo and some global to this machine
 - `CLAUDE.md`/`AGENTS.md`: these files are pushed to the context window of any agent working in this repo. They should be used incredibly sparingly, usually only for **navigation pointers** to other files.
 - The reviewer agent's rules (`meldom:meldom-reviewer`) and the `meldom:review` skill: read during review, not implementation. Add **navigation pointers** to docs folders rather than growing them past ~1,000 lines.
 - Docs: use docs as references files, pointed to by other files. Look for existing docs before writing new ones.
-- Skills: use skills for docs (since their description goes into the agent's context window), or for user-invoked commands. Follow the advice in the `writing-for-agents` skill.
+- Skills: use skills for docs (since their description goes into the agent's context window), or for user-invoked commands. Follow the advice in the `meldom:writing-for-agents` skill.

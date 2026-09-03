@@ -48,17 +48,24 @@ for it by name.
 | `implement`                     | Build a ticket or spec in the current session, test-first.                            | model-invoked |
 | `implement-spec`                | Land a whole PRD as one PR with parallel subagents.                                   | user-invoked  |
 | `triage`                        | Move incoming tickets you did not author through categorise → verify → brief.         | model-invoked |
-| `issue-intake`                  | File bugs conversationally, exploring the codebase for context as you talk.           | model-invoked |
-| `improve`                       | Audit a codebase and file prioritised tickets for other agents. Never edits code.     | model-invoked |
 | `improve-codebase-architecture` | Find deepening opportunities and propose refactors as tickets.                        | model-invoked |
 | `wayfinder`                     | Plan work too big for one session as a shared map of decision tickets.                | model-invoked |
 | `prototype`                     | Build a throwaway prototype to settle a design question before committing to it.      | model-invoked |
 | `grilling`                      | Stress-test a plan or decision with a relentless interview.                           | model-invoked |
+| `grill-with-docs`               | Grill a plan against the codebase, capturing terms and decisions as docs.             | model-invoked |
+| `explore-approaches`            | Generate several radically different approaches in parallel, then compare them.       | model-invoked |
 | `skeptic`                       | Adversarial review: challenge assumptions, hunt edge cases, poke holes.               | model-invoked |
 | `review`                        | Review changes for correctness, security, quality, reuse — and against their spec.    | model-invoked |
 | `bulletproof`                   | Maximum-rigor pipeline: assumption audit, adversarial pass, cross-validation.         | model-invoked |
 | `diagnosing-bugs`               | The diagnosis loop for hard bugs and performance regressions.                         | model-invoked |
-| `sync-docs`                     | Detect stale documentation and bring it back in line with the code.                   | model-invoked |
+| `codebase-design`               | Shared vocabulary for designing deep modules, and where a seam belongs.               | model-invoked |
+| `domain-modeling`               | Build and sharpen a project's domain model; writes CONTEXT.md and ADRs.               | model-invoked |
+| `tdd`                           | Test-driven development: the red-green-refactor loop.                                 | model-invoked |
+| `resolving-merge-conflicts`     | Resolve an in-progress git merge or rebase conflict.                                  | model-invoked |
+| `writing-for-agents`            | Writing documents for agents: skills, AGENTS.md, CLAUDE.md.                           | model-invoked |
+| `teach`                         | Teach a concept or skill, in this workspace, at the right depth.                      | user-invoked  |
+| `handoff`                       | Compact the conversation into a handoff document for another agent.                   | model-invoked |
+| `wait-what`                     | Stop — that last message did not land. Re-pitch it.                                   | user-invoked  |
 | `retro`                         | Retrospective on a session that went badly, when the environment is the suspect.      | user-invoked  |
 | `ship`                          | Commit and push from a Meldom chat through the ship review card.                      | model-invoked |
 | `merge-worktree`                | Land a worktree end to end and remove it through `worktree_remove`.                   | model-invoked |

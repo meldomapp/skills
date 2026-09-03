@@ -1,11 +1,11 @@
 ---
 name: triage
-description: Move incoming meldom tickets through a small state machine of triage roles — categorise, verify, grill if needed, and write agent-ready briefs. Use for raw tickets you didn't author (human-filed via the board, synced from a peer, or reported), not for tickets that `meldom:to-tickets` or `meldom:improve` already produced.
+description: Move incoming meldom tickets through a small state machine of triage roles — categorise, verify, grill if needed, and write agent-ready briefs. Use for raw tickets you didn't author (human-filed via the board, synced from a peer, or reported), not for tickets that `meldom:to-tickets` already produced.
 ---
 
 # Triage
 
-Move incoming meldom tickets through a small state machine of triage roles. Triage is for tickets you **didn't** create — board/HTTP-filed reports, peer-synced tickets, raw bug reports. Tickets that `meldom:to-tickets` or `meldom:improve` produced are already agent-ready; don't triage them.
+Move incoming meldom tickets through a small state machine of triage roles. Triage is for tickets you **didn't** create — board/HTTP-filed reports, peer-synced tickets, raw bug reports. Tickets that `meldom:to-tickets` produced are already agent-ready; don't triage them.
 
 Every comment you post during triage **must** start with this disclaimer:
 
@@ -50,7 +50,7 @@ The maintainer invokes `meldom:triage` and describes what they want in natural l
 
 Query with `mcp__meldom__ticket_list` and present three buckets, oldest first:
 
-1. **Untriaged** — no category/state label yet, and not produced by `meldom:to-tickets`/`meldom:improve`.
+1. **Untriaged** — no category/state label yet, and not produced by `meldom:to-tickets`.
 2. **`needs-triage`** — evaluation in progress.
 3. **`needs-info` with reporter activity since the last triage notes** — a new comment from the reporter means it needs re-evaluation.
 
@@ -64,7 +64,7 @@ Show counts and a one-line summary per ticket. Let the maintainer pick.
 
 3. **Verify the claim.** Before any grilling, check the claim holds up. For a bug, reproduce it from the reporter's steps (call the Skill tool with `meldom:diagnosing-bugs` when it's a hard repro). Report what happened: confirmed (with code path), failed, or insufficient detail (a strong `needs-info` signal). A confirmed verification makes a much stronger agent brief.
 
-4. **Grill (if needed).** If the request needs fleshing out, call the Skill tool twice, for `meldom:grilling` and `domain-modeling`, and grill it into shape a round of questions at a time, sharpening domain terms and updating `CONTEXT.md`/ADRs inline as decisions land.
+4. **Grill (if needed).** If the request needs fleshing out, call the Skill tool twice, for `meldom:grilling` and `meldom:domain-modeling`, and grill it into shape a round of questions at a time, sharpening domain terms and updating `CONTEXT.md`/ADRs inline as decisions land.
 
 5. **Apply the outcome:**
    - `ready-for-agent` — write the agent brief as the ticket **body** (`ticket_update`; see [AGENT-BRIEF.md](AGENT-BRIEF.md)), set `status: open` + `assignee: agent`.

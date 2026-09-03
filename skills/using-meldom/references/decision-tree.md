@@ -8,23 +8,19 @@ One row per intent. Pick the first match. Chains that produce tickets end with `
 | ----------------------------------------------------------------- | ------------------------------------------------------- | -------------- |
 | Build a feature (new, or has spec/parent)                         | meldom:to-tickets → meldom:implement                    | if 2+ tickets  |
 | Implement already-specified work (PRD/tickets in hand, build now) | meldom:implement                                        | no             |
-| Fix a bug                                                         | meldom:issue-intake → meldom:implement                  | no             |
-| Report multiple bugs                                              | meldom:issue-intake → meldom:implement                  | yes if related |
 | Triage incoming raw tickets (backlog you didn't author)           | meldom:triage                                           | no             |
 | Diagnose hard bug (need repro/debug loop)                         | meldom:diagnosing-bugs → meldom:implement               | no             |
-| Audit a codebase / find improvements / roadmap / suggest features | meldom:improve → meldom:implement                       | yes            |
 | Refactor code (doesn't know what)                                 | meldom:improve-codebase-architecture → meldom:implement | yes            |
-| Design/improve a module's interface, make code testable           | codebase-design                                         | no             |
-| Pin down domain terms or record a decision                        | domain-modeling (writes CONTEXT.md/ADRs)                | no             |
+| Design/improve a module's interface, make code testable           | meldom:codebase-design                                  | no             |
+| Pin down domain terms or record a decision                        | meldom:domain-modeling (writes CONTEXT.md/ADRs)         | no             |
 | Loose idea with open questions (multi-session)                    | meldom:wayfinder → meldom:implement                     | yes            |
-| Resolve a merge/rebase conflict                                   | resolving-merge-conflicts                               | no             |
-| Explore multiple approaches to a problem                          | explore-approaches                                      | no             |
+| Resolve a merge/rebase conflict                                   | meldom:resolving-merge-conflicts                        | no             |
+| Explore multiple approaches to a problem                          | meldom:explore-approaches                               | no             |
 | Prototype a design (data model, state, UI)                        | meldom:prototype                                        | no             |
 | Stress-test a plan                                                | meldom:grilling → reclassify after                      | no             |
-| Sharpen an idea against the codebase (capture terms/decisions)    | grill-with-docs                                         | no             |
+| Sharpen an idea against the codebase (capture terms/decisions)    | meldom:grill-with-docs                                  | no             |
 | Save/recall reference material (knowledge base)                   | note tools (no skill chain)                             | no             |
 | Attach a file to a ticket/note/comment                            | attachment tools (no skill chain)                       | no             |
-| Update documentation                                              | meldom:sync-docs                                        | no             |
 | Review code changes (quality, security, reuse, spec conformance)  | meldom:review                                           | no             |
 | Clean up after changes                                            | polish                                                  | no             |
 | Deep research                                                     | research                                                | no             |
@@ -43,18 +39,18 @@ One row per intent. Pick the first match. Chains that produce tickets end with `
 
 Most work travels one path. Use it to decide where a task enters and what comes next:
 
-1. **Sharpen the idea** — `meldom:grilling` (no codebase), or `grill-with-docs` when you have one (it runs grilling _with_ `domain-modeling`, capturing terms in `CONTEXT.md` and decisions as ADRs as you go).
+1. **Sharpen the idea** — `meldom:grilling` (no codebase), or `meldom:grill-with-docs` when you have one (it runs grilling _with_ `meldom:domain-modeling`, capturing terms in `CONTEXT.md` and decisions as ADRs as you go).
 2. **Open questions?** If a question needs a runnable answer (state, logic, a UI you must see), detour through `meldom:prototype`. If it needs more than one session of investigation, `meldom:wayfinder` charts a shared map of decision tickets and drives them one at a time.
 3. **Build:**
    - Multi-session / many slices → `meldom:to-tickets` (spec parent + child slices) → `meldom:implement` (in-context, test-first, no auto-commit).
    - One coherent piece, specified and clear now → `meldom:implement`.
    - A whole PRD you want landed as one PR with parallel subagents → `meldom:implement-spec` (user-invoked only; recommend it, don't call it). It is the heavy path; reach for it deliberately, not by default.
-4. **Upkeep, not features** — `meldom:improve-codebase-architecture` (built on `codebase-design`, grills with `meldom:grilling`, keeps the model current with `domain-modeling`). Picking a candidate generates an idea that re-enters at step 1.
+4. **Upkeep, not features** — `meldom:improve-codebase-architecture` (built on `meldom:codebase-design`, grills with `meldom:grilling`, keeps the model current with `meldom:domain-modeling`). Picking a candidate generates an idea that re-enters at step 1.
 5. **After code lands** — `meldom:review` → `meldom:ship` → `pr` (standalone; don't auto-append). `meldom:retro` afterwards when a run went badly and the environment is the suspect (user-invoked only; recommend it, don't call it).
 
-**On-ramp** — raw incoming tickets you didn't author (board/HTTP-filed reports, peer-synced, bug reports) go through `meldom:triage` first: categorise → verify → brief. It produces `ready-for-agent` tickets that `meldom:implement` then picks up. Don't meldom:triage tickets `meldom:to-tickets`/`meldom:improve` already produced — they're agent-ready.
+**On-ramp** — raw incoming tickets you didn't author (board/HTTP-filed reports, peer-synced, bug reports) go through `meldom:triage` first: categorise → verify → brief. It produces `ready-for-agent` tickets that `meldom:implement` then picks up. Don't triage tickets `meldom:to-tickets` already produced — they're agent-ready.
 
-`codebase-design`, `domain-modeling`, and `meldom:grilling` are also reached _by_ other skills mid-flow — they're the shared design/vocabulary skills, not just standalone entry points.
+`meldom:codebase-design`, `meldom:domain-modeling`, and `meldom:grilling` are also reached _by_ other skills mid-flow — they're the shared design/vocabulary skills, not just standalone entry points.
 
 ## Chain Details
 
@@ -64,7 +60,6 @@ meldom:to-tickets picks its own phases: unclear scope gets a spec parent first (
 
 ### Bug fix
 
-issue-intake runs an interactive session filing each bug as a meldom ticket. `meldom:implement` then builds just those tickets — their parent if one was created, or the explicit id list for a single bug.
 
 ### Diagnose (hard bug)
 
@@ -80,7 +75,7 @@ meldom:improve-codebase-architecture finds what needs work and files tickets; `m
 
 ### Triage (incoming tickets)
 
-triage moves raw tickets you didn't author through a role state machine (category + state mapped to meldom labels/status/assignee), verifies the claim, grills if needed, and writes an agent brief into the ticket body. Output is `ready-for-agent` / `ready-for-human` / `needs-info` / `wontfix` tickets, not new work — `meldom:implement` picks up the agent-ready ones. Distinct from issue-intake, which _creates_ tickets from a conversation; triage _processes_ tickets that already exist.
+triage moves raw tickets you didn't author through a role state machine (category + state mapped to meldom labels/status/assignee), verifies the claim, grills if needed, and writes an agent brief into the ticket body. Output is `ready-for-agent` / `ready-for-human` / `needs-info` / `wontfix` tickets, not new work — `meldom:implement` picks up the agent-ready ones. Distinct from `meldom:to-tickets`, which _creates_ tickets from a conversation; triage _processes_ tickets that already exist.
 
 ### Implement (in-context build)
 
@@ -96,11 +91,11 @@ wayfinder charts a loose idea with open questions as a shared map — a parent t
 
 ### Test-first alternative to implement
 
-For a single, well-scoped feature or bug where the contract is clear, swap `meldom:implement` for `tdd` (red-green-refactor on one unit). `meldom:implement` covers a whole ticket set; `tdd` is depth on one unit.
+For a single, well-scoped feature or bug where the contract is clear, swap `meldom:implement` for `meldom:tdd` (red-green-refactor on one unit). `meldom:implement` covers a whole ticket set; `meldom:tdd` is depth on one unit.
 
 ### Explore approaches
 
-explore-approaches spawns parallel sub-agents with different constraints, compares trade-offs, and picks a winner. This is a design exploration skill; it doesn't create tickets or produce implementation. The user can follow up with a new chain (e.g., meldom:to-tickets → meldom:implement) to build the chosen approach.
+meldom:explore-approaches spawns parallel sub-agents with different constraints, compares trade-offs, and picks a winner. This is a design exploration skill; it doesn't create tickets or produce implementation. The user can follow up with a new chain (e.g., meldom:to-tickets → meldom:implement) to build the chosen approach.
 
 ### Prototype
 

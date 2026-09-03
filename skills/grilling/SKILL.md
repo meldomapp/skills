@@ -27,4 +27,4 @@ Finding _facts_ is your job, never the user's. When a frontier question needs a 
 
 The session is done when the frontier is empty: every branch of the design tree visited, nothing left silently assumed. Do not act on it until the user confirms you have reached a shared understanding.
 
-When done, end with a recap: every decision made, one bullet each. Produce no tickets, and no files beyond the domain model when `domain-modeling` runs alongside; the recap lives in the conversation, ready for `meldom:to-tickets`.
+When done, end with a recap: every decision made, one bullet each. Produce no tickets, and no files beyond the domain model when `meldom:domain-modeling` runs alongside; the recap lives in the conversation, ready for `meldom:to-tickets`.

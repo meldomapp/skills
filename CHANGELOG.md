@@ -3,6 +3,19 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.1.0
+
+- Dropped `improve`, `sync-docs` and `issue-intake`. `improve` came from `shadcn/improve`, not from Meldom, and `sync-docs` and `issue-intake` are personal
+  tools rather than part of the shared workflow. Bug entry now runs through `meldom:diagnosing-bugs` for a
+  mystery, and straight to `meldom:to-tickets` otherwise.
+- Ten more skills, so the plugin carries the whole working set rather than half of it:
+  `codebase-design`, `domain-modeling`, `explore-approaches`, `grill-with-docs`, `handoff`,
+  `resolving-merge-conflicts`, `tdd`, `teach`, `wait-what` and `writing-for-agents`.
+- Cross-references to them are namespaced now that they live here — `implement` reaches `meldom:tdd`,
+  `improve-codebase-architecture` reaches `meldom:codebase-design`, and the router's decision tree names all ten.
+- `explore-approaches` and `codebase-design`'s design-it-twice pass say what to do when the provider has no
+  subagents.
+
 ## 1.0.2
 
 - `using-meldom`: restore the prose heading "Main flow (idea → ship)". The port's chain-namespacing pass matched

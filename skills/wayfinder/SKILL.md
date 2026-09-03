@@ -77,7 +77,7 @@ Every ticket is either **HITL** — human in the loop, worked _with_ a human who
 
 - **Research** (AFK): Reading documentation, third-party APIs, or local resources like knowledge bases to surface a fact a decision waits on. Resolved by a **subagent** that calls the Skill tool with `research`; capture the summary as a meldom note attached to the ticket (or the map, when it's reference worth keeping). Use when knowledge outside the current working directory is required.
 - **Prototype** (HITL): Raise the fidelity of the discussion by making a cheap, rough, concrete artifact to react to — an outline, a rough take, a stub, or UI/logic code by calling the Skill tool with `meldom:prototype`. Use when "how should it look" or "how should it behave" is the key question.
-- **Grilling** (HITL): Conversation. The default case. Always call the Skill tool twice, for `meldom:grilling` and `domain-modeling`.
+- **Grilling** (HITL): Conversation. The default case. Always call the Skill tool twice, for `meldom:grilling` and `meldom:domain-modeling`.
 - **Task** (HITL or AFK): Manual work that must happen before a _decision_ can be made — nothing to decide, prototype, or research, but the discussion is blocked until it's done. Signing up for a service so its API can be judged, provisioning access, moving data so its shape can be seen. This is the one type that _does_ rather than decides — and it earns its place by unblocking a decision, not by delivering the destination. The agent drives it alone where it can (AFK); otherwise it hands the human a precise checklist (HITL). Resolved when the work is done; the answer records what was done and any resulting facts (credentials location, new URLs, row counts) later tickets depend on.
 
 ## Fog of war
@@ -109,7 +109,7 @@ Two modes. Either way, **never resolve more than one ticket per session** — wi
 
 User invokes with a loose idea.
 
-1. **Name the destination.** Call the Skill tool twice, for `meldom:grilling` and `domain-modeling`, to pin down what this map is finding its way to — the spec, decision, or change. The destination fixes the scope, so it's settled first.
+1. **Name the destination.** Call the Skill tool twice, for `meldom:grilling` and `meldom:domain-modeling`, to pin down what this map is finding its way to — the spec, decision, or change. The destination fixes the scope, so it's settled first.
 2. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** — the way to the destination is already clear, the whole journey small enough for one session — you don't need a map. Stop and offer to skip it: recommend `meldom:implement` directly (the work is clear) or `meldom:to-tickets` to schedule a multi-session build.
 3. **Create the map** — a parent ticket labelled `wayfinder:map`, `assignee: "human"`, its body Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**.
 4. **Create the tickets you can specify now** as child tickets of the map (`mcp__meldom__ticket_batch_create`, `parent_id` = the map, each with its `wayfinder:<type>` label) — wire blocking with `blocked_by_index` in the same batch. Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog — the **Not yet specified** section.
@@ -122,7 +122,7 @@ User invokes with a map (its key or id). A ticket is **optional** — without on
 
 1. Load the **map** — `ticket_view(map)`, the low-res view, not every ticket body.
 2. Choose the ticket. If the user named one, use it. Otherwise take the next frontier ticket (`mcp__meldom__ticket_list({ "parent_id": <map>, "unblocked": true, "limit": 1 })`). **Claim it**: move it to `in_progress` before any work.
-3. Resolve it — **zoom as needed**: `ticket_view` any related or closed ticket on demand for its full body; call the Skill tool for whichever skills the `## Notes` block names. If in doubt, call the Skill tool twice, for `meldom:grilling` and `domain-modeling`.
+3. Resolve it — **zoom as needed**: `ticket_view` any related or closed ticket on demand for its full body; call the Skill tool for whichever skills the `## Notes` block names. If in doubt, call the Skill tool twice, for `meldom:grilling` and `meldom:domain-modeling`.
 4. Record the resolution: post the answer as a **comment** (`mcp__meldom__comment_create`), set the ticket `done` (`mcp__meldom__ticket_update`), and append a one-line pointer to the map body's **Decisions so far**.
 5. Add newly-surfaced tickets (batch-create, then they're wired); graduate any fog the answer has made specifiable, clearing each graduated patch from **Not yet specified** so it lives only as its new ticket. If the answer reveals a ticket — this one or another — sits beyond the destination, **rule it out of scope** rather than resolving it on the route. If the decision invalidates other parts of the map, update or close those tickets.
 

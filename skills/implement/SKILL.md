@@ -13,7 +13,7 @@ Completion means every in-scope ticket and acceptance criterion is implemented, 
 
 2. **Claim the work.** Move the ticket you are about to build — and its parent spec — to `in_progress` with `mcp__meldom__ticket_batch_update({ "entries": { "<id>": { "status": "in_progress" }, ... } })`. The board shows what is being worked on right now, so make the move before writing code, not after.
 
-3. **Implement at the pre-agreed seams.** Call the Skill tool with `tdd` where a seam is testable — write the failing test at that seam, then the minimal code to pass. Reach for the Skill tool with `codebase-design` when an interface needs designing.
+3. **Implement at the pre-agreed seams.** Call the Skill tool with `meldom:tdd` where a seam is testable — write the failing test at that seam, then the minimal code to pass. Reach for the Skill tool with `meldom:codebase-design` when an interface needs designing.
 
 4. **Verify proportionally.** Use targeted tests while iterating, run typechecking regularly, and run the full test suite at most once per task, at the end. Never run repeated full-suite loops. If the task explicitly requires suite benchmarking, use one run per variant.
 

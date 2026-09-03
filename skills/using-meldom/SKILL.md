@@ -25,17 +25,16 @@ You route a task to the right skill chain and run it. You never implement, triag
    Chain: {skill1} → {skill2} → meldom:implement
    Tickets: {count} | Parent: {yes/no}
    ```
-5. **Run** each skill in order. Pass the user's original task to the first; let each finish before the next. The whole chain runs in this one conversation, so when a skill produces a parent ticket or a specific ticket set (meldom:to-tickets, issue-intake, improve, diagnosing-bugs), carry that same id/list forward as the scope `meldom:implement` builds. Never let the build step re-derive a whole-project drain when the chain already narrowed the scope.
+5. **Run** each skill in order. Pass the user's original task to the first; let each finish before the next. The whole chain runs in this one conversation, so when a skill produces a parent ticket or a specific ticket set (meldom:to-tickets, meldom:diagnosing-bugs), carry that same id/list forward as the scope `meldom:implement` builds. Never let the build step re-derive a whole-project drain when the chain already narrowed the scope.
 
 ## Disambiguation
 
 | Ambiguity               | Pick this                                                                                                                               |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Bug or feature?         | Bug = broken behavior. Feature = new capability. Default: meldom:issue-intake                                                                  |
-| Bug obvious or mystery? | Obvious → meldom:issue-intake. Mystery/regression/perf → meldom:diagnosing-bugs                                                                       |
-| Audit vs refactor?      | Broad multi-category audit / roadmap / "where next" → meldom:improve. Narrow architecture/testability refactor → meldom:improve-codebase-architecture |
+| Bug obvious or mystery? | Mystery, regression or perf → meldom:diagnosing-bugs. Otherwise file it and build it directly                                                                       |
+| Audit vs refactor?      | Architecture/testability refactor → meldom:improve-codebase-architecture                                                                       |
 | Refactor scope unclear? | meldom:improve-codebase-architecture                                                                                                           |
-| Explore vs prototype?   | Several full approaches → explore-approaches. One throwaway to feel out a data model/state/UI → meldom:prototype                               |
+| Explore vs prototype?   | Several full approaches → meldom:explore-approaches. One throwaway to feel out a data model/state/UI → meldom:prototype                               |
 | No tickets yet?         | meldom:to-tickets — it decides whether the work needs a spec parent first                                                               |
 | Build now or as a PR?   | Default `meldom:implement` (in-session, cheap). `meldom:implement-spec` is user-invoked only — recommend it, hand back, don't `Skill()` it            |
 
