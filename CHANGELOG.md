@@ -3,6 +3,10 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.0
+
+- First public release. The repository is open; nothing about the plugin's contents changed from 0.2.0.
+
 ## 0.2.0
 
 - The full skill set: `using-meldom`, `implement`, `implement-spec`, `triage`, `improve`,
