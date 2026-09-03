@@ -3,6 +3,11 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.2
+
+- `using-meldom`: restore the prose heading "Main flow (idea → ship)". The port's chain-namespacing pass matched
+  every line containing an arrow, so it rewrote a heading that names a phase, not a skill.
+
 ## 1.0.1
 
 - Fix the README's update instructions. `claude plugin install` does not upgrade an installed plugin and

@@ -39,7 +39,7 @@ One row per intent. Pick the first match. Chains that produce tickets end with `
 
 "Spec" and "PRD" name the **same object** — a `type: "prd"` parent ticket that `meldom:to-tickets` publishes. Holding one does not tell you which row to pick; the discriminator is **execution mode**: `meldom:implement` builds it in this session, `meldom:implement-spec` farms it out to subagents behind one PR.
 
-## Main flow (idea → meldom:ship)
+## Main flow (idea → ship)
 
 Most work travels one path. Use it to decide where a task enters and what comes next:
 
