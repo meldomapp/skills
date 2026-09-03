@@ -1,0 +1,13 @@
+{
+    "name": "meldom",
+    "interface": { "displayName": "Meldom" },
+    "plugins": [
+        {
+            "name": "meldom",
+            "source": { "source": "local", "path": "./" },
+            "description": "Meldom's own agent workflows: driving the ticket board, shipping, landing worktrees, and the rest of how Meldom is meant to be worked.",
+            "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+            "category": "Productivity"
+        }
+    ]
+}

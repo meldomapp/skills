@@ -1,0 +1,12 @@
+{
+    "name": "meldom",
+    "owner": { "name": "Meldom", "url": "https://meldom.app" },
+    "plugins": [
+        {
+            "name": "meldom",
+            "source": "./",
+            "description": "Meldom's own agent workflows: driving the ticket board, shipping, landing worktrees, and the rest of how Meldom is meant to be worked.",
+            "category": "engineering"
+        }
+    ]
+}
