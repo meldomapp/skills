@@ -65,7 +65,7 @@ See [cross-validation](references/cross-validation.md) for full verifier and sec
 
 ## Completion Gate
 
-ALL must be true: tests pass (fresh), build clean (fresh), two-pass review 0 CRITICAL open, independent reviewer approved, all assumptions verified or flagged, pre-mortem addressed, project-wide diagnostics 0 errors (or "LSP unavailable" noted), 0 dangling references on removed/renamed symbols.
+ALL must be true: tests pass (fresh — through the project's own test script, never a bare runner over a whole tree), build clean (fresh), two-pass review 0 CRITICAL open, independent reviewer approved, all assumptions verified or flagged, pre-mortem addressed, project-wide diagnostics 0 errors (or "LSP unavailable" noted), 0 dangling references on removed/renamed symbols.
 
 **Confidence:** Report as `LEVEL (N/100)`. HIGH = 85-100, all pass + no open assumptions. MEDIUM = 60-84, most pass + minor gaps. LOW = 0-59, significant gaps. Default MEDIUM when any assumption unverifiable. Score deductions: -5 per unverified assumption, -10 per unresolved reviewer finding, -15 per failing check, -5 per outstanding pre-mortem/edge case.
 

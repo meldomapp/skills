@@ -36,3 +36,30 @@ When the shape of that interface is itself in question — how deep the module i
 - **Red before green.** Write the failing test first, then only enough code to pass it. Don't anticipate future tests or add speculative features.
 - **One slice at a time.** One seam, one test, one minimal implementation per cycle.
 - **Refactoring is not part of the loop.** It belongs to the review stage (call the Skill tool with `meldom:code-review` over the changes once they're green), not the red → green implementation cycle.
+
+## How to run the tests
+
+Run the files you touched, through the project's own test script. The whole suite goes through that same script,
+and only when you actually need it.
+
+```bash
+bun test tests/checkout.test.ts   # the loop: the seam you're working on
+bun run test                      # the whole suite, through the project's script, once at the end
+```
+
+```bash
+bunx bun test    # never: a bare runner pointed at a whole tree
+```
+
+A project's script is not decoration. It is where the flags that make a suite survivable live — parallel workers,
+per-file isolation, memory bounds. A bare runner over a whole tree gets none of them: on 2026-09-03 one grew to
+35 GB, and five of them in fifteen minutes froze the machine, taking the work with it.
+
+And never gate one command on another through a pipe:
+
+```bash
+bun run typecheck | tail && bun run test   # never: the gate never gates
+```
+
+Without `pipefail` the pipeline's exit status is `tail`'s, which is always 0 — so that ran the suite over a
+**failing** typecheck. Run each check as its own step and read its own exit code.
