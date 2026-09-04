@@ -9,6 +9,6 @@ description: 'Use when you need to resolve an in-progress git merge/rebase confl
 
 3. **Resolve each hunk.** Preserve both intents where possible. Where incompatible, pick the one matching the merge's stated goal and note the trade-off. Do **not** invent new behaviour. Always resolve; never `--abort`.
 
-4. Discover the project's **automated checks** and run them — typically typecheck, then tests, then format. Fix anything the merge broke.
+4. Discover the project's **automated checks** and run them — typically typecheck, then tests, then format. Run each as its own step and read its own exit code; never chain them through a pipe (`a | tail && b` reports the pipe's last status, so the gate never gates). Run tests through the project's own test script, and never a bare test runner pointed at a whole tree. Fix anything the merge broke.
 
 5. **Finish the merge/rebase.** Stage everything and commit. If rebasing, continue the rebase process until all commits are rebased.

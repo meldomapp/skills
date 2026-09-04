@@ -17,6 +17,24 @@ Completion means every in-scope ticket and acceptance criterion is implemented, 
 
 4. **Verify proportionally.** Use targeted tests while iterating, run typechecking regularly, and run the full test suite at most once per task, at the end. Never run repeated full-suite loops. If the task explicitly requires suite benchmarking, use one run per variant.
 
+   Run tests through the project's own test script, scoped to what you touched:
+
+   ```bash
+   bun test tests/checkout.test.ts   # while iterating
+   bun run test                      # the whole suite, through the project's script, once at the end
+   ```
+
+   ```bash
+   bunx bun test                             # never: a bare runner over a whole tree
+   bun run typecheck | tail && bun run test  # never: without pipefail the gate never gates
+   ```
+
+   The project's script is where the flags that keep a suite survivable live — parallel workers, per-file
+   isolation, memory bounds — and a bare runner over a whole tree gets none of them: on 2026-09-03 one grew to
+   35 GB and froze the machine mid-task. The piped gate is worse than useless: the pipeline's exit status is
+   `tail`'s, so that command ran the suite over a **failing** typecheck. Run each check as its own step and read
+   its own exit code.
+
    Keep the board honest as you go: the moment a child ticket's acceptance criteria pass, `ticket_update` it to `done` with a `reason`, and claim the next one as `in_progress` before starting it. At any point exactly one ticket is `in_progress` and every finished one reads `done` — never batch the status moves up to the end of the session.
 
 5. **Review, then record the outcome.** When the work is done, call the Skill tool with `meldom:code-review` over the changes. Its Spec axis is what checks each ticket against its acceptance criteria, so read that report per ticket and set `mcp__meldom__ticket_outcome({ "id": <ulid>, "outcome": "verified" })` for the ones it confirms. A ticket the report contradicts gets `"outcome": "failed"` and goes back to `open` — do not leave it reading `done`.

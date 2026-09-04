@@ -3,6 +3,19 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.5
+
+One rule, in every skill that tells an agent to run tests.
+
+- `tdd` and `implement` now say how to run them, with examples: through the project's own test script, scoped to
+  the files you touched, the whole suite through that same script and only when you need it — never a bare runner
+  pointed at a whole tree, and never a pipe as a gate. `resolving-merge-conflicts` and `bulletproof`, which also
+  tell an agent to run checks, carry the same rule in one line each. Both reasons are concrete rather than stylistic. A project's script is
+  where the flags that keep a suite survivable live (parallel workers, per-file isolation, memory bounds); on
+  2026-09-03 a bare runner over a whole suite grew to 35 GB, and five of them in fifteen minutes froze the
+  machine mid-task. And `a | tail && b` never gates, because without `pipefail` the pipeline's exit status is
+  `tail`'s — the same day, that ran a whole suite over a failing typecheck.
+
 ## 1.0.4
 
 Fixes found by reviewing 1.0.3 after it shipped. No behaviour change to any workflow.
