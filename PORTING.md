@@ -229,6 +229,10 @@ No divergence beyond the global namespacing rule. Wording differs where upstream
   because Meldom never rolls parent status up from children.
 - Hands off to `meldom:implement-spec` for the parallel, one-PR path, and says that skill is user-invoked so it
   cannot be reached with the Skill tool.
+- Scope is fixed at the read. Work the build surfaces past it is a follow-up, filed at once with
+  `mcp__meldom__ticket_create` under the spec (or, with no spec, under the chat's home PRD through the MCP
+  create-time default); once the in-scope tickets are done the skill starts again at step 1 with the parent so
+  the follow-ups become the next run's scope.
 - Does not commit: Meldom works on `main` and committing is the user's or `meldom:ship`'s job.
 
 ### implement-spec (`in-progress/implement-spec`)

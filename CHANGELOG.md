@@ -5,8 +5,15 @@ tagged `v<version>`.
 
 ## 1.0.5
 
-One rule, in every skill that tells an agent to run tests.
+`implement` keeps its scope, and every skill that tells an agent to run tests says how.
 
+- `implement` fixes its scope at the read: a parent means its open children as of step 1. Anything the build
+  surfaces past that — a bug beside the seam, a piece the spec skipped, a refactor that would help — is a
+  follow-up, filed the moment it is seen as a ticket under the spec (or, with no spec, under the chat's home PRD
+  through the MCP create-time default), and the agent returns to the criterion it was on. Once every in-scope
+  ticket is done, it starts again at step 1 with the parent so the follow-ups become the next run's scope; the
+  parent closes in the run that files nothing new. Work an in-scope criterion cannot pass without stays in scope
+  and gets built.
 - `tdd` and `implement` now say how to run them, with examples: through the project's own test script, scoped to
   the files you touched, the whole suite through that same script and only when you need it — never a bare runner
   pointed at a whole tree, and never a pipe as a gate. `resolving-merge-conflicts` and `bulletproof`, which also
