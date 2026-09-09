@@ -3,6 +3,27 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.6
+
+`implement` finishes what it starts, `to-spec` and `to-tickets` are two skills again, and the spec ticket type is
+`spec`.
+
+- `implement` files every follow-up inside the family of the ticket being built: under the spec, or under the
+  ticket's own parent, and a root ticket with no parent is first given a spec and moved under it. `parent_id` is
+  always passed; a follow-up is never a board root.
+- `implement` builds its follow-ups in the same session. Its scope is what it was handed plus every follow-up it
+  files; once a pass is done it goes back to step 1 with the scope's open tickets, and repeats until a pass
+  files nothing new. Done means every ticket in the scope is `done`, implemented and reviewed, and the final
+  message says exactly that — never a list of open tickets or next steps left for the user. The one exception
+  is a step only a human can take, handed over through `meldom:wizard` or a question.
+- `to-tickets` is split back into upstream's two skills. `to-spec` turns the conversation into a spec and
+  publishes it as a ticket of type `spec`; `to-tickets` breaks a plan or spec into tracer-bullet tickets with
+  native blocking edges, quizzing the user on the breakdown before publishing, as upstream does. Both follow
+  their upstream text, with Meldom as the only tracker. The `ask-meldom` map, `grilling`, the README and the
+  ledger name both.
+- The spec ticket type is `spec`, the word every skill already used for the thing itself. Every `ticket_create`
+  that publishes a spec passes `type: "spec"`, which needs a Meldom desktop that knows the type.
+
 ## 1.0.5
 
 `implement` keeps its scope, and every skill that tells an agent to run tests says how.

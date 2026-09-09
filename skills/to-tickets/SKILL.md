@@ -1,158 +1,84 @@
 ---
 name: to-tickets
-description: Turn a plan, spec, or conversation into Meldom tickets — a spec parent when the scope needs one, then independently-grabbable child tickets as tracer-bullet vertical slices. Use when the user wants to write a spec, convert a plan into tickets, break work down, or file implementation tickets.
+description: Break a plan, spec, or the current conversation into a set of tracer-bullet Meldom tickets, each declaring its blocking edges as native `blocked_by` links. Use when the user wants to break work down, convert a plan or spec into tickets, or file implementation tickets.
 ---
 
-# Meldom To Tickets
+# To Tickets
 
-One skill for ticket creation. It decides the parent and the children: Phase A writes a spec and publishes it as the parent ticket; Phase B breaks the work into child tickets. Pick the phases, then run them in order.
+Break a plan, spec, or conversation into a set of **tickets**: tracer-bullet vertical slices, each declaring the tickets that **block** it.
 
-## Phase routing
-
-| Situation                                        | Run                                                                                                                                                     |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| The user passed a parent ticket id               | Phase B only — fetch it with `ticket_view({ id })`, and read its `attachments[]` too (Read an attached mockup or spec image to ground the child slices) |
-| Scope unclear or cross-cutting (warrants a spec) | Phase A, then Phase B                                                                                                                                   |
-| Scope clear, no parent yet                       | Phase B only — it creates a plain parent itself                                                                                                         |
-
-If the whole task fits in one ticket, publish that single ticket and stop — no parent, no spec. A parent exists to organize two or more children, never one.
-
-If the user asked only for a spec, stop after Phase A.
-
-## Phase A — the spec parent
-
-Take the current conversation and your understanding of the codebase and produce a spec. Do NOT interview the user — synthesize what you already know.
-
-1. Explore the repo to understand the current state of the code, if you have not already.
-
-2. Sketch the seams at which the feature will be tested. Prefer existing seams to new ones, and use the highest seam possible. If new seams are needed, propose them at the highest point you can. The fewer seams across the codebase the better — the ideal number is one. State them briefly and move on; do not wait for sign-off.
-
-3. Write the spec using the template below, then publish it as the parent with `ticket_create({ title, body, type: "prd", parent_id: null })`. A spec is a deliberate root, so say `parent_id: null` explicitly — omitting it files the spec under the current chat's home PRD, which is right only for a follow-up to that PRD. Phase B's children link back through `parent_id`.
-
-<spec-template>
-
-## Problem Statement
-
-The problem the user faces, from the user's perspective.
-
-## Solution
-
-The solution, from the user's perspective.
-
-## User Stories
-
-A LONG, numbered list. Each one in the format:
-
-1. As an <actor>, I want a <feature>, so that <benefit>
-
-<user-story-example>
-1. As a mobile bank customer, I want to see the balance on my accounts, so that I can make better informed decisions about my spending
-</user-story-example>
-
-This list should be extensive and cover every aspect of the feature.
-
-## Implementation Decisions
-
-The decisions that were made. This can include:
-
-- The modules that will be built or modified
-- The interfaces of those modules
-- Technical clarifications from the developer
-- Architectural decisions
-- Schema changes
-- API contracts
-- Specific interactions
-
-Do NOT include file paths or code snippets — they go stale fast.
-
-Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (a state machine, a reducer, a schema, a type shape), inline it in the relevant decision and note briefly that it came from a prototype. Trim to the decision-rich parts.
-
-## Testing Decisions
-
-Include:
-
-- What makes a good test here (external behavior, never implementation details)
-- Which modules will be tested
-- Prior art — similar tests already in the codebase
-
-## Out of Scope
-
-What this spec deliberately does not cover.
-
-## Further Notes
-
-Anything else worth recording.
-
-</spec-template>
-
-## Phase B — the child slices
-
-Break the plan into independently-grabbable tickets using vertical slices (tracer bullets).
+## Process
 
 ### 1. Gather context
 
-Work from whatever is already in the conversation, including a Phase A spec. If the user passed a parent ticket id, it was fetched during routing.
+Work from whatever is already in the conversation context. If the user passes a reference (a spec path, a ticket key or ULID) as an argument, fetch it and read its full body and comments: a ticket is read with `mcp__meldom__ticket_view({ "id": "<key or ulid>" })`, including its `attachments[]` (Read an attached mockup or spec image) and `notes[]`.
 
-### 2. Explore the codebase
+### 2. Explore the codebase (optional)
 
-If you have not already, explore to understand the current state of the code. Look for prefactoring that would make the implementation easier: make the change easy, then make the easy change.
+If you have not already explored the codebase, do so to understand the current state of the code. Ticket titles and descriptions should use the project's domain glossary vocabulary, and respect ADRs in the area you're touching.
+
+Look for opportunities to prefactor the code to make the implementation easier. "Make the change easy, then make the easy change."
 
 ### 3. Draft vertical slices
 
-Each ticket is a thin vertical slice cutting through ALL integration layers end to end, never a horizontal slice of one layer.
+Break the work into **tracer bullet** tickets.
 
 <vertical-slice-rules>
-- Each slice delivers a narrow but COMPLETE path through every layer (schema, API, UI, tests)
+
+- Each slice cuts a narrow but COMPLETE path through every layer (schema, API, UI, tests): vertical, NOT a horizontal slice of one layer
 - A completed slice is demoable or verifiable on its own
-- Each slice fits in a single fresh context window
-- Any prefactoring comes first
-- Prefer many thin slices over few thick ones
+- Each slice is sized to fit in a single fresh context window
+- Any prefactoring should be done first
+
 </vertical-slice-rules>
 
-**Wide refactors are the exception.** A wide refactor is one mechanical change — rename a column, retype a shared symbol — whose blast radius fans across the codebase, so a single edit breaks thousands of call sites and no vertical slice can land green. Sequence it as expand–contract instead. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by the expand, keeping the build green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains, in a ticket blocked by every migrate batch. When even the batches cannot stay green alone, keep the sequence but let them share an integration branch that all block a final integrate-and-verify ticket — green is promised only there.
+Give each ticket its **blocking edges**: the other tickets that must complete before it can start. A ticket with no blockers can start immediately.
 
-### 4. State the breakdown, then publish
+**Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change (rename a column, retype a shared symbol) whose **blast radius** fans across the whole codebase, so a single edit breaks thousands of call sites at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand–contract**. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by the expand, keeping CI green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains, in a ticket blocked by every migrate batch. When even the batches can't stay green alone, keep the sequence but let them share an integration branch that all block a final integrate-and-verify ticket; green is promised only there.
 
-Present the slices as a numbered list for transparency — title, blocked by, what it delivers end to end, and which user stories it covers. Then publish immediately. Do not ask whether the granularity or the dependencies are right and do not wait for a go-ahead; the user can redirect after seeing what was created.
+### 4. Quiz the user
 
-### 5. Publish
+Present the proposed breakdown as a numbered list. For each ticket, show:
 
-Call `ticket_batch_create({ entries: [...] })` — one transaction. If no parent exists yet, create one first with `ticket_create` and `parent_id: null` (a new parent is a deliberate root), then set its id as `parent_id` on every entry; a lone slice needs none. Use `blocked_by_index` (0-based, within the batch) for dependencies between the new tickets. Entries carry an optional `assignee` (`human` or `agent`, default `agent`) — set `"assignee": "human"` for any slice the user will do themselves.
+- **Title**: short descriptive name
+- **Blocked by**: which other tickets (if any) must complete first
+- **What it delivers**: the end-to-end behaviour this ticket makes work
 
-```jsonc
-ticket_batch_create({
-  "entries": [
-    { "title": "Publish installs the skill", "parent_id": "<spec-id>", "body": "..." },
-    { "title": "App surfaces name it", "parent_id": "<spec-id>", "body": "...", "blocked_by_index": [0] }
-  ]
-})
-```
+Ask the user:
 
-Use this body template for each child:
+- Does the granularity feel right? (too coarse / too fine)
+- Are the blocking edges correct: does each ticket only depend on tickets that genuinely gate it?
+- Should any tickets be merged or split further?
+
+Iterate until the user approves the breakdown.
+
+### 5. Publish the tickets to Meldom
+
+Publish the approved tickets with one `mcp__meldom__ticket_batch_create({ "entries": [...] })` call, a single transaction, in dependency order (blockers first). Blocking edges are Meldom's native links: `blocked_by_index` (0-based, within the batch) names the entries that gate each one. Every entry carries `parent_id`: the spec ticket when the source was one (`meldom:to-spec` publishes it as a spec), otherwise a plain parent created first with `mcp__meldom__ticket_create({ "title": "...", "parent_id": null })` so the slices share one family on the board. A lone slice needs no parent: publish that single ticket and stop. The tickets are agent-grabbable by construction.
+
+Work the **frontier**: any ticket whose blockers are all done. For a purely linear chain that means top to bottom.
+
+Do NOT close or modify any parent ticket.
 
 <ticket-template>
+
 ## Parent
 
-Ticket <parent-id>
+A reference to the parent ticket (if the source was an existing ticket, otherwise omit this section).
 
 ## What to build
 
-A concise description of this vertical slice. Describe the end-to-end behavior, not a layer-by-layer implementation.
-
-Avoid file paths and code snippets — they go stale fast. Exception: a prototype snippet that encodes a decision more precisely than prose can (a state machine, a reducer, a schema, a type shape); inline it and say it came from a prototype, trimmed to the decision-rich parts.
+The end-to-end behaviour this ticket makes work, from the user's perspective, not layer-by-layer implementation.
 
 ## Acceptance criteria
 
 - [ ] Criterion 1
 - [ ] Criterion 2
-- [ ] Criterion 3
 
 ## Blocked by
 
-- A reference to the blocking ticket (if any)
-
-Or "None - can start immediately" when there are no blockers.
+- A reference to each blocking ticket, or "None (can start immediately)".
 
 </ticket-template>
 
-Task: $ARGUMENTS
+Avoid specific file paths or code snippets: they go stale fast. Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it and note briefly that it came from a prototype. Trim to the decision-rich parts, not a working demo, just the important bits.

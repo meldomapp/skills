@@ -43,9 +43,10 @@ for it by name.
 | Skill                           | What it does                                                                          | Invoked by    |
 | ------------------------------- | ------------------------------------------------------------------------------------- | ------------- |
 | `ask-meldom`                    | The map: which skill or flow fits your situation, and how they connect.               | model-invoked |
-| `to-tickets`                    | Turn a plan or conversation into a spec parent plus vertical-slice child tickets.     | model-invoked |
+| `to-spec`                       | Turn the conversation into a spec and publish it as a ticket of type `spec`.                     | model-invoked |
+| `to-tickets`                    | Break a plan or spec into vertical-slice tickets with blocking edges.                 | model-invoked |
 | `implement`                     | Build a ticket or spec in the current session, test-first.                            | model-invoked |
-| `implement-spec`                | Land a whole PRD as one PR with parallel subagents.                                   | user-invoked  |
+| `implement-spec`                | Land a whole spec as one PR with parallel subagents.                                   | user-invoked  |
 | `triage`                        | Move incoming tickets you did not author through categorise → verify → brief.         | model-invoked |
 | `improve-codebase-architecture` | Find deepening opportunities and propose refactors as tickets.                        | model-invoked |
 | `wayfinder`                     | Plan work too big for one session as a shared map of decision tickets.                | model-invoked |

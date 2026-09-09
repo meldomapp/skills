@@ -5,7 +5,7 @@ the single source of truth for **what we changed and why**. A sync agent reads i
 change from a deliberate local edit: a difference in *behaviour* that is not written down here is a bug in the
 port. A difference in *wording* usually is not — see the fidelity check below for how to tell them apart.
 
-- **Upstream baseline**: `6654f6b60cd9d5be8b54c6fafe44346dabeb3b76`
+- **Upstream baseline**: `3cca18b` (checked 2026-09-09; no skill changed upstream since `6654f6b`)
 - **Upstream buckets**: `skills/engineering/`, `skills/productivity/`, `skills/in-progress/`, `skills/misc/`.
   Skills are matched by **leaf folder name**, not by bucket.
 - **Mapping**: the sync tool keeps a machine-readable `upstream name -> local name` map alongside the commit it
@@ -64,8 +64,8 @@ going to sweep our prose to match. Two cases, and neither involves editing a sen
 
 - A file we take **wholesale from upstream** keeps upstream's text exactly as upstream wrote it, punctuation
   included. That is not us changing the style, it is simply the file we copied.
-- A file we have **rewritten for Meldom** (`triage`, `wayfinder`, `implement`, `implement-spec`, `to-tickets`,
-  and everything under Meldom-only) keeps its own writing, em-dashes and all. Porting an upstream change into
+- A file we have **rewritten for Meldom** (`triage`, `wayfinder`, `implement`, `implement-spec`, and everything
+  under Meldom-only) keeps its own writing, em-dashes and all. Porting an upstream change into
   it means porting the *content* of that change, in our voice, not retyping our paragraphs in upstream's.
 
 There is no mechanical way to hide the resulting noise, and the sync should not pretend otherwise: mapping the
@@ -86,7 +86,7 @@ Meldom runs AFK agents that must be able to reach a skill without a human typing
 **user-invoked** skills are **model-invoked** here, each with a model-facing description carrying trigger
 phrasing:
 
-`implement`, `to-tickets`, `triage`, `wayfinder`, `improve-codebase-architecture`, `grill-with-docs`,
+`implement`, `to-spec`, `to-tickets`, `triage`, `wayfinder`, `improve-codebase-architecture`, `grill-with-docs`,
 `handoff`, `ask-meldom`.
 
 These stay **user-invoked**, because firing them without being asked is the failure mode:
@@ -127,8 +127,8 @@ maintainer-specific rule file names, no harness-specific tool names presented as
 | `engineering/research`                      | `research`                      | yes     |
 | `engineering/resolving-merge-conflicts`     | `resolving-merge-conflicts`     | yes     |
 | `engineering/tdd`                           | `tdd`                           | yes     |
-| `engineering/to-spec`                       | `to-tickets` (Phase A)          | yes     |
-| `engineering/to-tickets`                    | `to-tickets` (Phase B)          | yes     |
+| `engineering/to-spec`                       | `to-spec`                       | yes     |
+| `engineering/to-tickets`                    | `to-tickets`                    | yes     |
 | `engineering/triage`                        | `triage`                        | yes     |
 | `engineering/wayfinder`                     | `wayfinder`                     | yes     |
 | `engineering/wizard`                        | `wizard`                        | yes     |
@@ -157,8 +157,7 @@ maintainer-specific rule file names, no harness-specific tool names presented as
 - Router entries name skills as `meldom:<name>` rather than `/<name>`, so the name copies straight into a Skill
   tool call on either provider.
 - The map covers **every skill folder in this plugin**, so the Meldom-only skills (`ship`, `merge-worktree`, `bulletproof`,
-  `explore-approaches`) are added to the groups they belong to, and `to-spec` collapses into the
-  single `meldom:to-tickets` entry.
+  `explore-approaches`) are added to the groups they belong to.
 - Upstream's `## Precondition` section pointed at `/setup-matt-pocock-skills`. Replaced: Meldom is the tracker
   and needs no setup, and domain docs (`CONTEXT.md`, ADRs) are read when present and created lazily by
   `meldom:domain-modeling`.
@@ -209,7 +208,7 @@ No divergence beyond the global namespacing rule. Wording differs where upstream
 ### grilling (`productivity/grilling`)
 
 - Adds a closing paragraph: end with a one-bullet-per-decision recap, produce no tickets and no files beyond the
-  domain model, and leave the recap in the conversation ready for `meldom:to-tickets`. Upstream stops at "do not
+  domain model, and leave the recap in the conversation ready for `meldom:to-spec` or `meldom:to-tickets`. Upstream stops at "do not
   act on it until the user confirms"; on Meldom the next step is always ticket creation, and without this the
   skill invented tickets of its own.
 
@@ -230,14 +229,21 @@ No divergence beyond the global namespacing rule. Wording differs where upstream
 - Hands off to `meldom:implement-spec` for the parallel, one-PR path, and says that skill is user-invoked so it
   cannot be reached with the Skill tool.
 - Scope is fixed at the read. Work the build surfaces past it is a follow-up, filed at once with
-  `mcp__meldom__ticket_create` under the spec (or, with no spec, under the chat's home PRD through the MCP
-  create-time default); once the in-scope tickets are done the skill starts again at step 1 with the parent so
-  the follow-ups become the next run's scope.
+  `mcp__meldom__ticket_create` inside the family of the ticket being built: under the spec, or under the
+  ticket's own parent, and a root ticket with no parent is first given a spec (`ticket_create` with
+  `type: "spec"`, then `ticket_update` with `parent_id`) so the follow-up lands beside it. `parent_id` is always
+  passed explicitly; a follow-up is never a board root.
+- Follow-ups are built in the same session. The scope is the set handed at step 1 plus every follow-up this
+  session files; once a pass is done the skill goes back to step 1 with the scope's open tickets, and repeats
+  until a pass files nothing new. Completion is every ticket in the scope `done` or `closed`, the parent closed
+  through the every-child-done rule, and a final message that says the work is implemented and reviewed —
+  never a list of open tickets or next steps. The one exception is a step only a human can take, handed over
+  through `meldom:wizard` or a question.
 - Does not commit: Meldom works on `main` and committing is the user's or `meldom:ship`'s job.
 
 ### implement-spec (`in-progress/implement-spec`)
 
-- The PRD is a Meldom parent ticket of `type: "prd"`; its children are the slices. Ticket state is owned by this
+- The spec is a Meldom parent ticket of `type: "spec"`; its children are the slices. Ticket state is owned by this
   session through `mcp__meldom__*`; subagents never call Meldom, so they are handed the ticket **body**, not an
   id.
 - Implementer subagents are `Agent(subagent_type: "meldom:meldom-worker")`, with an explicit fallback for
@@ -295,17 +301,25 @@ No recorded divergence. Wording differs from upstream where upstream rewrote it 
 
 No recorded divergence. Wording differs from upstream where upstream rewrote it (global rule 2).
 
-### to-tickets (`engineering/to-spec` + `engineering/to-tickets`)
+### to-spec (`engineering/to-spec`)
 
-- **Two upstream skills, one local skill.** Upstream splits spec-writing (`to-spec`) from ticket-splitting
-  (`to-tickets`); Meldom publishes both into the same board, and the parent-plus-children shape is one act. So
-  `to-tickets` has a routing table and two phases: **Phase A** writes the spec and publishes it as the parent
-  ticket (`ticket_create`, `type: "prd"`, `parent_id: null`), **Phase B** breaks the work into child tickets
-  (`ticket_batch_create`). A `to-spec` diff ports into Phase A, a `to-tickets` diff into Phase B. Never
-  whole-file replace.
-- **Model-invoked** (global rule 3).
-- Blocking edges are Meldom's native `blocked_by`, never text in a file under `.scratch/`.
-- Single-ticket work publishes one ticket and stops: a parent exists to organize two or more children.
+- **Model-invoked** (global rule 3), with a model-facing description.
+- The spec is published as a Meldom spec: `mcp__meldom__ticket_create` with `type: "spec"` and an explicit
+  `parent_id: null`, because omitting it would file the spec under the chat's home spec. No `ready-for-agent`
+  label: Meldom has no triage label vocabulary to apply.
+- The `/setup-matt-pocock-skills` precondition line is dropped (global rule 4).
+
+### to-tickets (`engineering/to-tickets`)
+
+- **Model-invoked** (global rule 3), with a model-facing description.
+- A ticket passed as the reference is read with `mcp__meldom__ticket_view`, including its `attachments[]` and
+  `notes[]`.
+- Step 5 publishes to Meldom only: one `mcp__meldom__ticket_batch_create` transaction, blocking edges as native
+  `blocked_by_index` links. Upstream's local-files branch (`.scratch/`, the per-file ticket template) and the
+  `ready-for-agent` label are dropped; the `/setup-matt-pocock-skills` precondition line too (global rule 4).
+- Every slice carries `parent_id`: the spec when there is one, otherwise a plain parent created first, so the
+  slices share one family on the board (ADR 0002 shows roots only). A lone slice publishes as one ticket and
+  stops.
 
 ### triage (`engineering/triage`)
 
