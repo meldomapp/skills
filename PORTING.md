@@ -233,12 +233,13 @@ No divergence beyond the global namespacing rule. Wording differs where upstream
   ticket's own parent, and a root ticket with no parent is first given a spec (`ticket_create` with
   `type: "spec"`, then `ticket_update` with `parent_id`) so the follow-up lands beside it. `parent_id` is always
   passed explicitly; a follow-up is never a board root.
-- Follow-ups are built in the same session. The scope is the set handed at step 1 plus every follow-up this
-  session files; once a pass is done the skill goes back to step 1 with the scope's open tickets, and repeats
-  until a pass files nothing new. Completion is every ticket in the scope `done` or `closed`, the parent closed
-  through the every-child-done rule, and a final message that says the work is implemented and reviewed —
-  never a list of open tickets or next steps. The one exception is a step only a human can take, handed over
-  through `meldom:wizard` or a question.
+- Everything this session creates is built in this session. The scope is the set handed at step 1 plus every
+  ticket the session creates, whatever its type, cause or age — a "pre-existing" bug filed mid-build is in
+  scope, not a category that may be left. Step 6 reads `conversation_status` and loops back to step 1 while
+  any created ticket is open, until a pass creates nothing new. Completion is every ticket in the scope `done`
+  or `closed`, the parent closed through the every-child-done rule, and a final message that says the work is
+  implemented and reviewed — never a list of open tickets or next steps. The one exception is a step only a
+  human can take, handed over through `meldom:wizard` or a question.
 - Does not commit: Meldom works on `main` and committing is the user's or `meldom:ship`'s job.
 
 ### implement-spec (`in-progress/implement-spec`)

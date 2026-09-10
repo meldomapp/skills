@@ -3,6 +3,15 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.7
+
+`implement` builds every ticket it creates.
+
+- `implement` closes the loophole 1.0.6 left open. Its scope is every ticket the session creates, whatever its
+  type, cause or age: a "pre-existing" bug found mid-build is built here, not filed as a board root and handed
+  back. Step 6 reads `conversation_status` and loops until every ticket the session created is `done`, and the
+  final-message rule — implemented and reviewed, never an open ticket or a next step — now opens the skill.
+
 ## 1.0.6
 
 `implement` finishes what it starts, `to-spec` and `to-tickets` are two skills again, and the spec ticket type is
