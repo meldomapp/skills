@@ -17,8 +17,11 @@ tagged `v<version>`.
 - `implement` and `implement-spec` run the review and whole-project checks once, at the end. While building,
   only the tests covering what was just touched run. After the last ticket, `code-review` runs, and a ticket
   it fails is rebuilt; then the full suite, lint, format, typecheck and build run once as the **gate**. `tdd`
-  points to review instead of calling it, and `meldom-worker` leaves the gate to the orchestrator. The `bun`-only examples in
-  `implement` and `tdd` are gone, so the guidance fits any stack.
+  points to review instead of calling it, and `meldom-worker` leaves the gate to the orchestrator. The
+  `bun`-only examples in `implement` and `tdd` are gone, so the guidance fits any stack.
+- `ship --mine` marks every file the agent edited or created, untracked ones included, as `agentTouched: true`:
+  the ship card pre-checks exactly those and adds nothing of its own. The confirmed-selection check compares
+  against that same set.
 
 ## 1.0.7
 
