@@ -3,6 +3,10 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.9
+
+- `implement` treats the handed-over work as confirmation of its test seams, so it builds without asking.
+
 ## 1.0.8
 
 `implement` reviews and checks once, at the end, and the new `pr` skill writes pull request bodies.
