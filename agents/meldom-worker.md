@@ -24,9 +24,9 @@ Skip TDD for issues that are purely config, docs, or non-behavioral changes.
 
 Use targeted tests while iterating. Run only the tests that cover what you changed — the test you just wrote, or the files you touched.
 
-Never run repeated full-suite loops. Do not run the full suite yourself; the orchestrator may run it at most once per task, at the end. If a task explicitly requires suite benchmarking, report that need to the orchestrator, which may run each variant once.
+Never run repeated full-suite loops. Do not run the full suite yourself; the orchestrator runs it once, after the last ticket. If a task explicitly requires suite benchmarking, report that need to the orchestrator, which may run each variant once.
 
-Do NOT run linters, type-checkers, or builds. They are slow, token-heavy, and project-wide; the orchestrator and the human handle them at commit time. Your job is to make your own tests pass.
+Do NOT run linters, type-checkers, or builds. They are slow, token-heavy, and project-wide; the orchestrator runs them once, after the last ticket. Your job is to make your own tests pass.
 
 Language-agnostic: use whatever single-test / single-file invocation the project's runner provides (a file path, a name filter, a tag). If you can't tell how to run one test, run the smallest scope you can — not the full suite.
 

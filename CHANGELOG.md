@@ -3,6 +3,23 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.8
+
+`implement` reviews and checks once, at the end, and the new `pr` skill writes pull request bodies.
+
+- New `pr` skill, ported from upstream: the shape a pull request body should take — a summary visual (pseudocode,
+  call tree, file tree, Mermaid or a diff sketch), a before/after pair of evidence, and a merge-danger call (one-way
+  or two-way door, blast radius). Model-invoked; `ask-meldom` points to it from the landing step.
+- `retro` classifies a coding-standards finding before writing it: a mechanical violation gets a deterministic
+  check (a linter rule, a pre-commit hook or a CI job), and `CODING_STANDARDS.md` is kept for judgement calls. It
+  reads the repo's own check command first, and flags a repo with no guardrail at all as a finding. Its steering
+  file candidate is `AGENTS.md` again, and its Files list matches upstream.
+- `implement` and `implement-spec` run the review and whole-project checks once, at the end. While building,
+  only the tests covering what was just touched run. After the last ticket, `code-review` runs, and a ticket
+  it fails is rebuilt; then the full suite, lint, format, typecheck and build run once as the **gate**. `tdd`
+  points to review instead of calling it, and `meldom-worker` leaves the gate to the orchestrator. The `bun`-only examples in
+  `implement` and `tdd` are gone, so the guidance fits any stack.
+
 ## 1.0.7
 
 `implement` builds every ticket it creates.

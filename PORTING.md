@@ -5,7 +5,7 @@ the single source of truth for **what we changed and why**. A sync agent reads i
 change from a deliberate local edit: a difference in *behaviour* that is not written down here is a bug in the
 port. A difference in *wording* usually is not — see the fidelity check below for how to tell them apart.
 
-- **Upstream baseline**: `3cca18b` (checked 2026-09-09; no skill changed upstream since `6654f6b`)
+- **Upstream baseline**: `c55ee46` (checked 2026-09-26)
 - **Upstream buckets**: `skills/engineering/`, `skills/productivity/`, `skills/in-progress/`, `skills/misc/`.
   Skills are matched by **leaf folder name**, not by bucket.
 - **Mapping**: the sync tool keeps a machine-readable `upstream name -> local name` map alongside the commit it
@@ -134,6 +134,7 @@ maintainer-specific rule file names, no harness-specific tool names presented as
 | `engineering/wizard`                        | `wizard`                        | yes     |
 | `in-progress/implement-spec`                | `implement-spec`                | yes     |
 | `in-progress/loop-me`                       | `loop-me`                       | yes     |
+| `in-progress/pr`                            | `pr`                            | yes     |
 | `in-progress/retro`                         | `retro`                         | yes     |
 | `productivity/grill-me`                     | `grill-me`                      | yes     |
 | `productivity/grilling`                     | `grilling`                      | yes     |
@@ -157,7 +158,8 @@ maintainer-specific rule file names, no harness-specific tool names presented as
 - Router entries name skills as `meldom:<name>` rather than `/<name>`, so the name copies straight into a Skill
   tool call on either provider.
 - The map covers **every skill folder in this plugin**, so the Meldom-only skills (`ship`, `merge-worktree`, `bulletproof`,
-  `explore-approaches`) are added to the groups they belong to.
+  `explore-approaches`) are added to the groups they belong to. So are the upstream `in-progress/` skills we ship
+  (`implement-spec`, `loop-me`, `retro`, `pr`), which upstream's router leaves out; `pr` sits in the landing step.
 - Upstream's `## Precondition` section pointed at `/setup-matt-pocock-skills`. Replaced: Meldom is the tracker
   and needs no setup, and domain docs (`CONTEXT.md`, ADRs) are read when present and created lazily by
   `meldom:domain-modeling`.
@@ -235,11 +237,17 @@ No divergence beyond the global namespacing rule. Wording differs where upstream
   passed explicitly; a follow-up is never a board root.
 - Everything this session creates is built in this session. The scope is the set handed at step 1 plus every
   ticket the session creates, whatever its type, cause or age — a "pre-existing" bug filed mid-build is in
-  scope, not a category that may be left. Step 6 reads `conversation_status` and loops back to step 1 while
+  scope, not a category that may be left. Step 5 reads `conversation_status` and loops back to step 1 while
   any created ticket is open, until a pass creates nothing new. Completion is every ticket in the scope `done`
   or `closed`, the parent closed through the every-child-done rule, and a final message that says the work is
   implemented and reviewed — never a list of open tickets or next steps. The one exception is a step only a
   human can take, handed over through `meldom:wizard` or a question.
+- Checks are split into the seam and the **gate**. While building, only the tests covering what was just touched
+  run. `meldom:code-review` runs after the last ticket in the scope, and a ticket it fails is built again from
+  step 1. The gate — every whole-project check (full suite, lint, format, typecheck, build) —
+  runs last, once nothing is open, so it covers the review's fixes too. Upstream runs typechecking "regularly"
+  and reviews after the full suite; here typecheck waits for the gate, because it is project-wide in most
+  stacks, and the gate comes after the review.
 - Does not commit: Meldom works on `main` and committing is the user's or `meldom:ship`'s job.
 
 ### implement-spec (`in-progress/implement-spec`)
@@ -253,6 +261,8 @@ No divergence beyond the global namespacing rule. Wording differs where upstream
   `mcp__meldom__worktree_list`: worktrees that already exist and belong to this chat are the only source of
   parallelism. Never run `git worktree add`; worktree creation is user-driven.
 - Committing from a Meldom chat goes through `meldom:ship`, not raw `git commit`.
+- Step 7 runs the **gate** once after `meldom:code-review` and its fixes: every whole-project check the repo
+  defines, each as its own command. Upstream names only the review there.
 
 ### improve-codebase-architecture (`engineering/improve-codebase-architecture`)
 
@@ -265,6 +275,10 @@ No divergence beyond the global namespacing rule. Wording differs where upstream
 ### loop-me (`in-progress/loop-me`)
 
 No divergence beyond the global namespacing rule: the stateful session it runs is `meldom:grilling`. Wording differs where upstream rewrote it (global rule 2).
+
+### pr (`in-progress/pr`)
+
+No divergence: every file, `CREDITS.md` included, is upstream's text as upstream wrote it.
 
 ### prototype (`engineering/prototype`)
 
@@ -292,7 +306,10 @@ No recorded divergence. Wording differs from upstream where upstream rewrote it 
 
 ### tdd (`engineering/tdd`)
 
-No divergence beyond the global namespacing rule. Wording differs where upstream rewrote it (global rule 2).
+- Adds one rule of the loop: the loop runs the seam's tests, and whole-project checks run once, after the last
+  slice of the whole build. `meldom:implement` drives this skill once per ticket, so without it each ticket ran
+  the full suite and lint on its own.
+- Wording differs where upstream rewrote it (global rule 2).
 
 ### teach (`productivity/teach`)
 

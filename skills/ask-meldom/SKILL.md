@@ -32,6 +32,8 @@ The route most work travels. You have an idea and want it built.
 
    If the work lived in a worktree, **`meldom:merge-worktree`** does the whole landing end to end instead: ship the commit, push, merge, pull the main checkout, remove the worktree through `worktree_remove`, and delete the remote branch. Use it rather than `git worktree remove`, which destroys submodule commits.
 
+   Whenever you open a pull request, with or without a landing skill, **`meldom:pr`** writes its body.
+
 ### Context hygiene
 
 Keep steps 1–3 in **one unbroken context window** (don't compact or clear until after `meldom:to-tickets`) so the grilling, spec, and tickets all build on the same thinking. Each `meldom:implement` then starts fresh, working from the ticket.

@@ -68,6 +68,7 @@ for it by name.
 | `retro`                         | Retrospective on a session that went badly, when the environment is the suspect.      | user-invoked  |
 | `ship`                          | Commit and push from a Meldom chat through the ship review card.                      | model-invoked |
 | `merge-worktree`                | Land a worktree end to end and remove it through `worktree_remove`.                   | model-invoked |
+| `pr`                            | Write a PR body fast to review: a visual, before/after evidence, merge danger.        | model-invoked |
 | `research`                      | Investigate a question against primary sources; capture it as a file and a note.      | model-invoked |
 | `wizard`                        | Generate an interactive bash wizard for steps only a human can perform.               | model-invoked |
 | `loop-me`                       | Grill you about the specs for the workflows you want to build in this workspace.      | user-invoked  |

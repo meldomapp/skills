@@ -40,7 +40,7 @@ This is the heavy path — many subagents, a branch, a PR, then a full review pa
 
 6. Recompute the **frontier** and continue until no ticket is left.
 
-7. Once all tickets are complete, call the Skill tool with `meldom:code-review` on the PR branch. Fix all issues raised by the review in a single **implementer subagent**. Record each ticket the review's Spec axis confirms with `mcp__meldom__ticket_outcome({ "id": <ulid>, "outcome": "verified" })`, and any it contradicts as `"failed"`.
+7. Once all tickets are complete, call the Skill tool with `meldom:code-review` on the PR branch. Fix all issues raised by the review in a single **implementer subagent**. Record each ticket the review's Spec axis confirms with `mcp__meldom__ticket_outcome({ "id": <ulid>, "outcome": "verified" })`, and any it contradicts as `"failed"`. Then run the **gate** once on the PR branch: every whole-project check the repo defines — the full suite, lint, format, typecheck, build — each as its own command, read by its own exit code. Fix what fails and re-run that check until every one exits clean.
 
 8. Mark the PR as ready for review, and move the spec to `done` once every child is `done` or `closed` — parent status never rolls up on its own. Walk upward too: a closed spec may complete its own parent. Any ticket left `in_progress` from step 5 keeps the spec open; say so in the summary.
 
