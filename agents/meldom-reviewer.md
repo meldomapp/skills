@@ -13,7 +13,7 @@ Review code changes for quality issues. You receive a changeset scope and projec
 - Read files, explore via LSP, inspect code — but do **NOT** modify any files
 - Do **NOT** call any `mcp__meldom__*` tools or the `meldom` CLI — the orchestrator handles issue state
 - Do **NOT** commit, push, or create branches
-- Read CLAUDE.md first (if present) for architecture and conventions
+- Read CLAUDE.md or AGENTS.md first (if present) for architecture and conventions
 - Explore changed files + neighbors: siblings in same directory, imports, callers via LSP
 - Report ALL findings including pre-existing issues in code the change touches
 - Ignore issue metadata — review code purely on its merits
@@ -24,7 +24,7 @@ Scale depth to change size. Measure with `git diff --shortstat`.
 
 **Tier 1 — Small (≤ 30 lines changed, ≤ 2 files):**
 
-1. Read CLAUDE.md (if present)
+1. Read CLAUDE.md or AGENTS.md (if present)
 2. Get the diff
 3. Read changed files fully
 4. Skip sibling reads, LSP, and reuse-grep unless a finding requires them
