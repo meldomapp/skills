@@ -5,7 +5,11 @@ tagged `v<version>`.
 
 ## 1.0.9
 
+`implement` builds without stopping to ask, and the reviewer reads `AGENTS.md`.
+
 - `implement` treats the handed-over work as confirmation of its test seams, so it builds without asking.
+- `meldom-reviewer` reads `CLAUDE.md` or `AGENTS.md` first, so a repo that keeps its rules in `AGENTS.md` is
+  reviewed against them.
 
 ## 1.0.8
 
