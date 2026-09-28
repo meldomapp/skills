@@ -248,6 +248,11 @@ No divergence beyond the global namespacing rule. Wording differs where upstream
   runs last, once nothing is open, so it covers the review's fixes too. Upstream runs typechecking "regularly"
   and reviews after the full suite; here typecheck waits for the gate, because it is project-wide in most
   stacks, and the gate comes after the review.
+- Reports progress through `mcp__meldom__progress`, which upstream has no equivalent of: one `plan` call after
+  the first pass's claim with exactly one step per ticket, never again on a later pass, `add` for each follow-up
+  filed and each ticket review reopens, `done` with each ticket's move to `done`, and `finish` with the run's last
+  tool call. When the tool is not there after one search, every progress
+  call is skipped silently.
 - Does not commit: Meldom works on `main` and committing is the user's or `meldom:ship`'s job.
 
 ### implement-spec (`in-progress/implement-spec`)
@@ -263,6 +268,10 @@ No divergence beyond the global namespacing rule. Wording differs where upstream
 - Committing from a Meldom chat goes through `meldom:ship`, not raw `git commit`.
 - Step 7 runs the **gate** once after `meldom:code-review` and its fixes: every whole-project check the repo
   defines, each as its own command. Upstream names only the review there.
+- The orchestrator reports progress through `mcp__meldom__progress`, which upstream has no equivalent of: one
+  `plan` call in step 3 with exactly one step per slice, `done` with each slice's move to `done`, and `finish`
+  with the closing `conversation_update`. When the tool is not there after one search, every progress call is
+  skipped silently.
 
 ### improve-codebase-architecture (`engineering/improve-codebase-architecture`)
 
