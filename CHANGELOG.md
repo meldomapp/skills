@@ -3,7 +3,7 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
-## 1.0.9
+## 1.0.10
 
 `implement` and `implement-spec` report their progress to the Meldom session progress bar.
 
@@ -14,6 +14,14 @@ tagged `v<version>`.
 - When the tool is not there — an older app or a session outside Meldom — the skill searches for it once, then
   skips every progress call silently and carries on, with nothing to retry. Turning the Session progress setting
   off only hides the bar: the tool is still there, so the skill still reports.
+
+## 1.0.9
+
+`implement` builds without stopping to ask, and the reviewer reads `AGENTS.md`.
+
+- `implement` treats the handed-over work as confirmation of its test seams, so it builds without asking.
+- `meldom-reviewer` reads `CLAUDE.md` or `AGENTS.md` first, so a repo that keeps its rules in `AGENTS.md` is
+  reviewed against them.
 
 ## 1.0.8
 

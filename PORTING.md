@@ -242,6 +242,7 @@ No divergence beyond the global namespacing rule. Wording differs where upstream
   or `closed`, the parent closed through the every-child-done rule, and a final message that says the work is
   implemented and reviewed — never a list of open tickets or next steps. The one exception is a step only a
   human can take, handed over through `meldom:wizard` or a question.
+- Handing over the work confirms its seams, so the build runs without `meldom:tdd`'s seam question.
 - Checks are split into the seam and the **gate**. While building, only the tests covering what was just touched
   run. `meldom:code-review` runs after the last ticket in the scope, and a ticket it fails is built again from
   step 1. The gate — every whole-project check (full suite, lint, format, typecheck, build) —
@@ -251,8 +252,7 @@ No divergence beyond the global namespacing rule. Wording differs where upstream
 - Reports progress through `mcp__meldom__progress`, which upstream has no equivalent of: one `plan` call after
   the first pass's claim with exactly one step per ticket, never again on a later pass, `add` for each follow-up
   filed and each ticket review reopens, `done` with each ticket's move to `done`, and `finish` with the run's last
-  tool call. When the tool is not there after one search, every progress
-  call is skipped silently.
+  tool call. When the tool is not there after one search, every progress call is skipped silently.
 - Does not commit: Meldom works on `main` and committing is the user's or `meldom:ship`'s job.
 
 ### implement-spec (`in-progress/implement-spec`)
