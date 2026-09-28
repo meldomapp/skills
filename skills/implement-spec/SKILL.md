@@ -34,9 +34,11 @@ This is the heavy path — many subagents, a branch, a PR, then a full review pa
 
 3. Decide the concurrency — `mcp__meldom__worktree_list`, then the Rules above — and say in one line which mode you are in and why, before spawning anything. Then create the branch. Hold the draft PR until after the first commit — `gh pr create` fails on a branch with no commits between it and base.
 
+   Then report the plan once, exactly one step per slice in the order you expect to land them and nothing else, each sized `S`, `M` or `L`: `mcp__meldom__progress({ "goal": "<spec title>", "plan": ["<slice title>:M", "<slice title>:S"] })`. The plan is the slices: review, the gate and the rest of the run get no step of their own. The progress calls are yours; subagents never make them. If `mcp__meldom__progress` is not loaded, search your tools for it once; when that finds nothing, skip every progress call in this skill silently and carry on — the ticket moves already tell the board where you are, so there is nothing to retry and nothing to tell the user.
+
 4. Work the frontier with **implementer subagents** (`Agent(subagent_type: "meldom:meldom-worker")`), at the concurrency the Rules allow. If the provider has no subagents at all — Codex does not — do this work in the current session instead, following the same brief. Move each ticket to `in_progress` with `mcp__meldom__ticket_batch_update` before spawning, and hand the subagent the ticket body itself — a subagent cannot call meldom, so a ticket id is not a pointer it can follow. Inspect the `{id, success, error?}[]` the batch call returns: it never throws, so an unchecked failure leaves a ticket stranded.
 
-5. When a subagent reports success, commit its paths and move the ticket to `done` with a `reason`. Open the draft PR here if it does not exist yet, pointing at the spec and listing the child ticket keys. If the subagent reports failure, do **not** commit and do **not** mark it done — leave it `in_progress`, record why, and carry it to the final summary. The frontier must never advance onto a broken base.
+5. When a subagent reports success, commit its paths and move the ticket to `done` with a `reason`, sending its progress `{ "done": <its step number> }` in the same message as that move, never on its own. Open the draft PR here if it does not exist yet, pointing at the spec and listing the child ticket keys. If the subagent reports failure, do **not** commit and do **not** mark it done — leave it `in_progress`, record why, and carry it to the final summary. The frontier must never advance onto a broken base.
 
 6. Recompute the **frontier** and continue until no ticket is left.
 
@@ -44,4 +46,4 @@ This is the heavy path — many subagents, a branch, a PR, then a full review pa
 
 8. Mark the PR as ready for review, and move the spec to `done` once every child is `done` or `closed` — parent status never rolls up on its own. Walk upward too: a closed spec may complete its own parent. Any ticket left `in_progress` from step 5 keeps the spec open; say so in the summary.
 
-9. Print a summary and set `mcp__meldom__conversation_update({ "summary": "<1-2 sentences on what this run built>" })`.
+9. Print a summary and set `mcp__meldom__conversation_update({ "summary": "<1-2 sentences on what this run built>" })`, sending progress `{ "finish": true }` in the same message.
