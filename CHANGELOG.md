@@ -8,9 +8,9 @@ tagged `v<version>`.
 `implement` and `implement-spec` report their progress to the Meldom session progress bar.
 
 - `implement` and `implement-spec` call `mcp__meldom__progress`: one `plan` after the claim, with exactly one
-  step per ticket (or slice) sized `S`, `M` or `L` and nothing else; `done` as each one reaches `done`, sent in
-  the same message as the next tool call; `finish` with the last call of the run. `implement` sends its `plan` on
-  the first pass only and `add`s each follow-up it files and each ticket review sends back to `open`.
+  step per ticket (or slice) sized `S`, `M` or `L` and nothing else; `done` in the same message as that ticket's
+  (or slice's) move to `done`; `finish` with the last call of the run. `implement` sends its `plan` on the first
+  pass only and `add`s each follow-up it files and each ticket review sends back to `open`.
 - When the tool is not there — an older app or a session outside Meldom — the skill searches for it once, then
   skips every progress call silently and carries on, with nothing to retry. Turning the Session progress setting
   off only hides the bar: the tool is still there, so the skill still reports.
