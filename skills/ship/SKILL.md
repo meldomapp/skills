@@ -9,7 +9,7 @@ Validate -> card -> commit -> push -> receipt.
 
 You are running inside a Meldom chat, so the **review card is the authorization**. Every commit goes through `ship_review`; there is no direct-git path. If the card cannot be shown, nothing is committed.
 
-**Flags:** `--no-push` (commit only) | `--mine` (only files you touched this session — whole files, not just your lines) | `--brief` (subject line only, no body)
+**Flags:** `--no-push` (commit only) | `--mine` (only changes you made this session, including separable edits in shared files) | `--brief` (subject line only, no body)
 
 **Completion gate:** keep going until the commit exists and its push succeeded (or the commit exists when `--no-push` was asked). Treat a recoverable git failure as an intermediate state: fix it, resume at the relevant phase, continue. If the remote branch has commits you must integrate, fetch and merge or rebase; on conflicts, resolve them and finish the merge before retrying the push. Never swallow a push failure. Reconcile in the checkout the user selected — never run `git worktree add` on their behalf.
 
@@ -33,7 +33,9 @@ Extract: branch, ticket id (from the branch's `[A-Z]+-[0-9]+`), changed files, d
 
 **Stop if:** dangerous files found | no changes | detached HEAD | `--mine` filters to an empty set. This runs before any card can appear.
 
-**Shared checkout under `--mine`:** if a file you touched also carries another session's changes, do not stage it. Stop, name the mixed files, and ask the user where to continue. Never create a worktree yourself and never copy the mixed file wholesale.
+**Shared checkout under `--mine`:** construct a Git patch containing only your edits. Different sections in one file can ship separately. Use your edit history plus the current diff; do not infer ownership from a touched-file list. If overlapping edits or dependencies make attribution uncertain, stop and name the uncertainty. Never create a worktree yourself.
+
+**Patch mode:** when any file is shared, include an exact `patch` on EVERY proposed file row and `baseCommit` with the full current HEAD hash. Keep those patch bytes until shipping finishes. Include new files as Git addition patches. Before review, check that the patches apply to `baseCommit` ([recipe](references/partial-staging.md) step 3 with `--check` only). The card shows these patches directly; counts describe the supplied patches. Binary files, renames, symlinks and submodule pointers need a separate whole-file review. Do not silently widen a partial proposal.
 
 One more stop fires later, in Phase 3: a confirmed selection with no files in it.
 
@@ -59,24 +61,27 @@ Noise filter — never bullet: pure formatting/lint, asset additions, lockfile c
 
 Call `ship_review` (`mcp__meldom__ship_review`) instead of running git directly:
 
-- `files` — every changed file from Phase 1, nothing filtered out: `{ path, additions, deletions, agentTouched }`.
+- `files` — every changed file from Phase 1, nothing filtered out: `{ path, additions, deletions, agentTouched }`, plus `patch` in patch mode.
   - Without `--mine`: `agentTouched: true` for every file, so the card arrives with everything checked (the equivalent of `git add .`).
-  - With `--mine`: `agentTouched` reflects the real distinction — edited or created by you this session vs a pre-existing uncommitted change. The card pre-checks only the `true` ones and lists the rest unchecked so the user can still opt them in. The server adds nothing of its own: the card pre-checks exactly the files you mark `agentTouched: true`, so a file you leave unmarked arrives unchecked and is left out of the commit. Mark every file you edited or created this session, untracked `??` files included. The distinction is file-level: a checked file ships whole, so another session's lines in a file you both edited ship too.
+  - With `--mine`: `agentTouched` reflects the real distinction — edited or created by you this session vs a pre-existing uncommitted change. The card pre-checks only the `true` ones and lists the rest unchecked so the user can still opt them in. The server adds nothing of its own: the card pre-checks exactly the files you mark `agentTouched: true`, so a file you leave unmarked arrives unchecked and is left out of the commit. Mark every file you edited or created this session, untracked `??` files included. Without patches, a checked file ships whole. In patch mode, a checked file ships only its supplied patch.
+- `baseCommit` — in patch mode, the full HEAD hash used to prepare every file patch. Omit for whole-file review.
 - `message` — the Phase 2 message.
 - `checks` — the Phase 1 validations as rows, e.g. `{ label: 'No secrets detected', passed: true }`, `{ label: 'On a valid branch', passed: true }`. With a proposed rename, add `{ label: 'Rename branch after confirmation: <current> -> <proposed>', passed: true }`; `branch` stays the current name until confirmation.
 - `presets` — `{ push: !"--no-push", brief: "--brief" }`.
 - `branch` / `remote` — the current branch and its remote (`origin` unless the branch tracks another).
 - `root` — the Phase 1 toplevel, the absolute path the `files` paths are relative to.
 
-The call parks and returns `{ outcome, selectedFiles, selectedAllProposed, message, push }`:
+The call parks and returns `{ outcome, selectedFiles, selectedAllProposed, message, push }`, plus `baseCommit` in patch mode:
 
 ### `confirmed`
 
 First, unconditionally: **if `selectedFiles` is empty, stop.** No `git add`, no commit, no push, no `ship_receipt`. Output `Ship - Stopped: empty file selection`. This covers both a user unticking every row and an AFK-confirmed ship whose proposed subset was already empty.
 
-Under `--mine` only, one check before staging: compare `selectedFiles` against your own changes this session (the paths you sent as `agentTouched: true`). Extra paths mean the message you wrote no longer describes what would be committed — name them and ask whether they belong. When `selectedAllProposed` is true, do this from `files` and not from `selectedFiles`: the user kept every row, so the extra paths are exactly the ones you sent as `agentTouched: false`. Reading the returned list here would ask the question against a list your provider may have shortened, and silently skip it. If the user says include, proceed unchanged; if they say no, re-run `ship_review` with the same `files`/`checks`/`presets`/`branch`/`remote`/`root` exactly as `regenerate` does. Never quietly narrow to the `agentTouched` subset — the selection is the user's, not yours.
+Under `--mine` only, one check before staging: compare `selectedFiles` against your own changes this session (the paths you sent as `agentTouched: true`). Extra paths mean the message you wrote no longer describes what would be committed — name them and ask whether they belong. When `selectedAllProposed` is true, do this from `files` and not from `selectedFiles`: the user kept every row, so the extra paths are exactly the ones you sent as `agentTouched: false`. Reading the returned list here would ask the question against a list your provider may have shortened, and silently skip it. If the user says include, proceed unchanged; if they say no, re-run `ship_review` with the same `files`/`checks`/`presets`/`branch`/`remote`/`root`/`baseCommit` exactly as `regenerate` does. Never quietly narrow to the `agentTouched` subset — the selection is the user's, not yours.
 
-Then run ONE chained command. With a confirmed rename, prepend `git branch -m '<new-name>' &&` and use the new name as the receipt destination:
+**When the proposal carries patches:** follow [Commit approved patches](references/partial-staging.md). Never run `git add <selectedFiles>` for a patch-mode card. After its commit and push steps, report the receipt below.
+
+**For whole-file review:** run ONE chained command. With a confirmed rename, prepend `git branch -m '<new-name>' &&` and use the new name as the receipt destination:
 
 ```bash
 git add -- <selectedFiles...> \
@@ -106,7 +111,7 @@ Stop immediately. Touch nothing: no add, no commit, no push, no `ship_receipt`. 
 
 ### `regenerate`
 
-Redo Phase 2, then call `ship_review` again with the same `files`/`checks`/`presets`/`branch`/`remote`/`root` and the new message. Repeat until `confirmed` or `cancelled`.
+Redo Phase 2, then call `ship_review` again with the same `files`/`checks`/`presets`/`branch`/`remote`/`root`/`baseCommit` and the new message. Repeat until `confirmed` or `cancelled`.
 
 ### The call fails with an error
 
@@ -123,19 +128,19 @@ After a successful push, offer to open a PR.
 
 ## Gotchas
 
-| Trap                                     | Fix                                                                                                                    |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `git add .` stages secrets               | Run the dangerous-file check before staging, and stage only `selectedFiles`                                            |
-| No ticket in the branch                  | `type: description`, never `type(): description`                                                                       |
-| Detached HEAD                            | Stop with "Not on a branch"                                                                                            |
-| Branch name breaks the convention        | Propose it on the card; rename locally only after confirmation, and leave an old remote ref alone                      |
-| `ship_review` errored, so run git direct | Never. Retry the card or stop. Committing without a card ships work nobody approved                                    |
-| `--mine` staged files you never touched  | `selectedFiles` disagreeing with your `agentTouched: true` set is a red flag, not consent. Stop and confirm            |
-| `--mine` assumed to isolate your changes | It selects files, not lines. A checked file ships whole. Only a worktree the user already selected isolates a checkout |
-| `--mine` finds a mixed shared file       | Stop and ask where to continue. Never create a worktree or copy the mixed file wholesale                               |
-| Confirmed selection is empty             | Stop before any git command, and skip `ship_receipt` too                                                               |
-| `ship_receipt` skipped                   | Call it after every successful git flow, or the card is stuck on "Shipping…"                                           |
-| Push dies with "no upstream branch"      | The branch's first push. Probe `@{upstream}` and use `git push -u <remote> HEAD` when it has none                      |
-| Slow ship from extra reads               | Phase 1 is ONE chained call; never diff files this session changed                                                     |
+| Trap                                     | Fix                                                                                                         |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `git add .` stages secrets               | Run the dangerous-file check before staging, and stage only `selectedFiles`                                 |
+| No ticket in the branch                  | `type: description`, never `type(): description`                                                            |
+| Detached HEAD                            | Stop with "Not on a branch"                                                                                 |
+| Branch name breaks the convention        | Propose it on the card; rename locally only after confirmation, and leave an old remote ref alone           |
+| `ship_review` errored, so run git direct | Never. Retry the card or stop. Committing without a card ships work nobody approved                         |
+| `--mine` staged files you never touched  | `selectedFiles` disagreeing with your `agentTouched: true` set is a red flag, not consent. Stop and confirm |
+| `--mine` on shared files                 | Supply exact per-file patches and their base commit; the card selects the proposed patches                  |
+| Edits overlap in a shared file           | Separate only changes whose ownership and dependencies are clear; ask about the rest                        |
+| Confirmed selection is empty             | Stop before any git command, and skip `ship_receipt` too                                                    |
+| `ship_receipt` skipped                   | Call it after every successful git flow, or the card is stuck on "Shipping…"                                |
+| Push dies with "no upstream branch"      | The branch's first push. Probe `@{upstream}` and use `git push -u <remote> HEAD` when it has none           |
+| Slow ship from extra reads               | Phase 1 is ONE chained call; never diff files this session changed                                          |
 
 Task: $ARGUMENTS

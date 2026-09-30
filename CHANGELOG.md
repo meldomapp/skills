@@ -3,6 +3,18 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.11
+
+`ship --mine` ships only your own lines from a file other sessions also edited.
+
+- Under `--mine`, a shared file is proposed as your exact Git patch. The card sends `baseCommit` and a `patch`
+  on every file row, and shows those patches instead of the live whole-file diff.
+- After approval, `references/partial-staging.md` commits the selected patches from a temporary index with
+  `git commit-tree` and moves the branch with `git update-ref` only while HEAD is still the reviewed base. Other
+  sessions' edits stay uncommitted in the working files, and their staged work on other paths is untouched.
+- A moved HEAD, a changed branch, or a selected path someone else staged stops the ship with nothing committed.
+- Patch-mode commits run no Git hooks, so the patch and message must already be formatted and checked.
+
 ## 1.0.10
 
 `implement` and `implement-spec` report their progress to the Meldom session progress bar.
