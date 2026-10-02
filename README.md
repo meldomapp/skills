@@ -55,6 +55,7 @@ for it by name.
 | `grill-with-docs`               | Grill a plan against the codebase, capturing terms and decisions as docs.             | model-invoked |
 | `explore-approaches`            | Generate several radically different approaches in parallel, then compare them.       | model-invoked |
 | `code-review`                   | Review changes on two axes: repo coding standards, and the originating ticket.        | model-invoked |
+| `security-audit`                | Audit exploitable security weaknesses and verify security fixes.                     | model-invoked |
 | `bulletproof`                   | Maximum-rigor pipeline: assumption audit, adversarial pass, cross-validation.         | model-invoked |
 | `diagnosing-bugs`               | The diagnosis loop for hard bugs and performance regressions.                         | model-invoked |
 | `codebase-design`               | Shared vocabulary for designing deep modules, and where a seam belongs.               | model-invoked |

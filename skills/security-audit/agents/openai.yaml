@@ -1,0 +1,3 @@
+interface:
+  display_name: "Security Audit"
+  short_description: "Audit security weaknesses and verify fixes"

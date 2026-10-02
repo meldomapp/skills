@@ -3,6 +3,13 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.12
+
+New `security-audit` skill for finding exploitable security weaknesses and checking security fixes.
+
+- The audit instructions are copied unchanged from the local Claude skill.
+- Available in Claude Code and Codex as `meldom:security-audit`, with entries in the skill map and README.
+
 ## 1.0.11
 
 `ship --mine` ships only your own lines from a file other sessions also edited.

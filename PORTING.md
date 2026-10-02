@@ -410,3 +410,8 @@ Upstream skills this plugin deliberately does not ship. `localMapping` maps each
 **Watched** means the sync still diffs it every run and asks one question: does this change add a config section
 that a skill we *do* ship now reads? A yes is ported or consciously dropped; silence is the failure mode this
 column exists to prevent. Everything else is skipped without a diff.
+
+### security-audit
+
+Copied from the local Claude `security-audit` skill. `SKILL.md` is unchanged. The plugin adds
+`agents/openai.yaml` for Codex display metadata; invocation remains model-invoked.

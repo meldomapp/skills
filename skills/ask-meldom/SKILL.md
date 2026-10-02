@@ -58,6 +58,8 @@ A starting situation that generates work, then merges onto the main flow.
 
 Not feature work, just upkeep.
 
+- **`meldom:security-audit`** audits a codebase for exploitable security weaknesses or checks whether a security fix is complete.
+
 - **`meldom:improve-codebase-architecture`** runs whenever you have a spare moment to keep the codebase good for agents to operate in. It surfaces **deepening opportunities**; picking one _generates an idea_ you can take into the main flow at `meldom:grill-with-docs`. It's the survey that finds the candidates; **`meldom:codebase-design`** (below) is the bench you design the chosen one on.
 
 ## Vocabulary underneath
