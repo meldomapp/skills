@@ -16,6 +16,9 @@ tagged `v<version>`.
   anything is committed.
 - The README's Codex update command is `codex plugin marketplace upgrade meldom`. Without the name, Codex
   upgrades every Git marketplace you have added.
+- `bulletproof` Phase 6 is steps 16 and 17, so no step number repeats.
+- In `bulletproof`, a change over 3000 lines is split across three review agents per
+  `references/structural-review.md`, which is where that procedure lives.
 
 ## 1.0.12
 

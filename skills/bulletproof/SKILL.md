@@ -60,8 +60,8 @@ See [cross-validation](references/cross-validation.md) for full verifier and sec
 
 ### Phase 6 - Deliver
 
-15. Present evidence report, remaining risks, areas for human review.
-16. If not HIGH confidence: explain what prevented it and what would help.
+16. Present evidence report, remaining risks, areas for human review.
+17. If not HIGH confidence: explain what prevented it and what would help.
 
 ## Completion Gate
 
@@ -86,7 +86,7 @@ ALL must be true: tests pass (fresh — through the project's own test script, n
 | Scenario                                  | Handling                                                                       |
 | ----------------------------------------- | ------------------------------------------------------------------------------ |
 | LSP unavailable                           | Fall back to Grep + build/test. Note in evidence report                        |
-| Change > 3000 lines                       | Parallel 3-agent review delegation per detection-patterns.md                   |
+| Change > 3000 lines                       | Parallel 3-agent review delegation per structural-review.md                    |
 | Reviewer and implementer disagree         | Escalate to user with both perspectives                                        |
 | Confidence stuck at MEDIUM after 2 cycles | Escalate with specific blockers                                                |
 | User says "stop" or "good enough"         | Respect intent. Show current confidence + remaining risks                      |
