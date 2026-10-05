@@ -142,7 +142,7 @@ let agentFiles = [];
 try {
     agentFiles = readdirSync(join(ROOT, 'agents')).filter((entry) => entry.endsWith('.md'));
 } catch {
-    fail('agents/: missing or unreadable');
+    // No agents/ at all is the same as an empty one: fine until a skill spawns an agent, checked below.
 }
 for (const agentFile of agentFiles) {
     const content = readFileSync(join(ROOT, 'agents', agentFile), 'utf8');
@@ -155,6 +155,14 @@ for (const agentFile of agentFiles) {
     if (!/^description:\s*\S/m.test(frontmatter)) fail(`agents/${agentFile}: has no description`);
     if (/^model:\s*\S/m.test(frontmatter)) {
         fail(`agents/${agentFile}: pins "model:" — an agent must run on whatever model the user's harness provides`);
+    }
+}
+
+// A skill spawns an agent as `meldom:meldom-<name>`, and the provider resolves it to `agents/meldom-<name>.md`.
+// A reference with no file behind it is a subagent call that fails on the user's machine.
+for (const file of allFiles(skillsDir)) {
+    for (const agent of new Set(Array.from(readFileSync(file, 'utf8').matchAll(/meldom:(meldom-[a-z0-9-]+)/g), (match) => match[1]))) {
+        if (!agentFiles.includes(`${agent}.md`)) fail(`${relative(ROOT, file)}: spawns "meldom:${agent}" but agents/${agent}.md does not exist`);
     }
 }
 
