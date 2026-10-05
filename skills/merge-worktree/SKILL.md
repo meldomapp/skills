@@ -30,7 +30,7 @@ git -C <submodule-path> merge-base --is-ancestor <theirs> <ours>   # ours contai
 
 Neither contains the other → a real divergence: resolve it with your own reading of both sides.
 
-**A peer landing** — a merge in progress, `UU` entries, or a detached submodule in the main checkout that you did not create — is another agent's landing, never "unrelated changes". Wait for it in ONE Bash call that re-checks every 30 seconds and returns once it clears, and touch nothing of theirs. There is no lock: this rule is the only thing keeping two landings out of each other's way.
+**A peer landing** — a merge in progress, `UU` entries, or a detached submodule in the main checkout that you did not create — is another agent's landing, never "unrelated changes". Wait for it in ONE shell command that re-checks every 30 seconds and returns once it clears, and touch nothing of theirs. There is no lock: this rule is the only thing keeping two landings out of each other's way.
 
 ```bash
 M=<main-checkout>
@@ -72,7 +72,7 @@ gh pr view <number> --json state,mergeStateStatus        # state must read MERGE
 - **A merge commit, always.** Never `--squash` and never `--rebase`: a squash mints a new commit the worktree's own checkout does not have, which is what makes a superrepo pointer stale and a worktree branch look unmerged.
 - **Never delete the branch as part of the merge.** The remote branch goes in Phase 6, after removal has confirmed the work is durable.
 - **Not mergeable** → repair it INSIDE the worktree, not on the remote: `git fetch origin <base>`, `git merge origin/<base>`, resolve, push, then merge the PR.
-- **Blocked by required checks** → `gh pr merge <number> --merge --auto`, then wait in one blocking call: `gh pr checks <number> --watch --fail-fast`. It returns when every check has passed or the first one fails; a failure is fixed inside the worktree and pushed. After a clean exit, `gh pr view <number> --json state` confirms `MERGED`; while it still reads `OPEN` the queued merge is landing, so re-check it every 30 seconds in one call (`until gh pr view <number> --json state -q .state | grep -qx MERGED; do sleep 30; done`). Waiting is a pause, not an end.
+- **Blocked by required checks** → `gh pr merge <number> --merge --auto`, then wait in one blocking call: `gh pr checks <number> --watch --fail-fast --required`. It returns when every required check has passed or the first one fails; a failure is fixed inside the worktree and pushed. After a clean exit, `gh pr view <number> --json state` confirms `MERGED`; while it still reads `OPEN` the queued merge is landing, so re-check it every 30 seconds in one call (`until gh pr view <number> --json state -q .state | grep -qx MERGED; do sleep 30; done`). These waits, like the peer-landing loop, can outlast a default command timeout: run them with a long timeout or in the background. Waiting is a pause, not an end.
 - Confirm `state: MERGED` before moving on.
 
 **Superrepo, right after a submodule merges**: move the worktree's own submodule checkout to the merged remote head before staging the pointer, so the pointer names a commit that is actually on the submodule's remote.
@@ -220,7 +220,7 @@ A superrepo on the remote path with a submodule that has **no shared remote at a
 | Untracked user files in the main checkout                  | `git stash push -u` before Phase 4, `git stash pop` after. Never move, delete or exclude them                                  |
 | A peer's half-done merge in the shared checkout            | Wait in the 30-second re-check loop. It is another landing, not unrelated changes                                              |
 | Squashing or rebasing the PR                               | Always `--merge`. A squash strands the worktree's own commits and makes the superrepo pointer stale                            |
-| `gh pr merge` blocked by required checks                   | Queue with `--auto`, wait on `gh pr checks --watch --fail-fast`. Never force past a required check                             |
+| `gh pr merge` blocked by required checks                   | Queue with `--auto`, wait on `gh pr checks --watch --fail-fast --required`. Never force past a required check                  |
 | `git checkout <original-branch>` fails inside the worktree | Git refuses a branch already checked out elsewhere — merge from the main checkout instead                                      |
 | `ship_review` fails with an error                          | Follow `meldom:ship`'s rule: retry the card when it was retracted or the request died. Raw `git commit` is never the way past |
 | Remote branch deleted too early                            | Only after MERGED, a successful removal, AND `merged: true`. Otherwise it is the only durable copy                             |
