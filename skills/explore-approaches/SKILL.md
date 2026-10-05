@@ -1,7 +1,6 @@
 ---
 name: explore-approaches
 description: Generate multiple radically different approaches to a design problem using parallel sub-agents, then compare trade-offs. Use when user wants to explore options, compare approaches, think through alternatives, or mentions "design it twice".
-allowed-tools: AskUserQuestion
 ---
 
 # Explore Approaches
@@ -20,7 +19,7 @@ Before designing, understand:
 - [ ] Any constraints? (performance, compatibility, existing patterns)
 - [ ] What should be hidden inside vs exposed?
 
-Use the `AskUserQuestion` tool to gather requirements: "What does this module need to do? Who will use it?"
+Ask the user to gather requirements: "What does this module need to do? Who will use it?"
 
 ### 2. Generate Designs (Parallel Sub-Agents)
 
@@ -70,10 +69,10 @@ Discuss trade-offs in prose, not tables. Highlight where designs diverge most.
 
 ### 5. Synthesize
 
-Often the best design combines insights from multiple options. Use `AskUserQuestion` to ask:
+Often the best design combines insights from multiple options. Ask the user:
 
 - "Which design best fits your primary use case?" — list each design as an option with a description of its trade-offs
-- "Any elements from other designs worth incorporating?" — use `multiSelect: true` to allow picking elements from multiple designs
+- "Any elements from other designs worth incorporating?" — let them pick elements from more than one design
 
 ### 6. Incremental Design Approval
 

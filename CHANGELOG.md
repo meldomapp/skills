@@ -24,6 +24,10 @@ tagged `v<version>`.
 - `bulletproof`'s edge-case table links `references/structural-review.md`, as its steps do.
 - `implement`, `implement-spec`, `triage` and `to-tickets` read a ticket in its `detailed` form and page its body
   and relations, as `code-review` does, so a long spec is never read trimmed.
+- `meldom-worker` says it receives the ticket body, which is what `implement-spec` hands it.
+- `explore-approaches` asks the user in plain words rather than naming one provider's question tool.
+- A `wizard` waits for Enter before clearing each finished stage, so its confirmations are read, and its summary
+  lists the GitHub variables it set.
 
 ## 1.0.12
 
