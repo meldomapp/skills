@@ -228,8 +228,8 @@ No divergence beyond the global namespacing rule. Wording differs where upstream
 ### implement (`engineering/implement`)
 
 - **Model-invoked** (global rule 3).
-- Rewritten against Meldom throughout: the spec is a parent ticket read with `mcp__meldom__ticket_view`, the
-  claim is `mcp__meldom__ticket_batch_update` to `in_progress`, per-ticket completion is `ticket_update` to
+- Rewritten against Meldom throughout: the spec is a parent ticket read with `mcp__meldom__ticket_view` in its
+  `detailed` form, paging the body and relations so nothing is trimmed, the claim is `mcp__meldom__ticket_batch_update` to `in_progress`, per-ticket completion is `ticket_update` to
   `done` with a reason, the review outcome is `mcp__meldom__ticket_outcome`, and the parent is closed explicitly
   because Meldom never rolls parent status up from children.
 - Hands off to `meldom:implement-spec` for the parallel, one-PR path, and says that skill is user-invoked so it
@@ -261,7 +261,8 @@ No divergence beyond the global namespacing rule. Wording differs where upstream
 
 ### implement-spec (`in-progress/implement-spec`)
 
-- The spec is a Meldom parent ticket of `type: "spec"`; its children are the slices. Ticket state is owned by this
+- The spec is a Meldom parent ticket of `type: "spec"`; its children are the slices. It is read with
+  `mcp__meldom__ticket_view` in its `detailed` form, paging the body and relations so nothing is trimmed. Ticket state is owned by this
   session through `mcp__meldom__*`; subagents never call Meldom, so they are handed the ticket **body**, not an
   id.
 - Implementer subagents are `Agent(subagent_type: "meldom:meldom-worker")`, with an explicit fallback for
@@ -343,8 +344,8 @@ No recorded divergence. Wording differs from upstream where upstream rewrote it 
 ### to-tickets (`engineering/to-tickets`)
 
 - **Model-invoked** (global rule 3), with a model-facing description.
-- A ticket passed as the reference is read with `mcp__meldom__ticket_view`, including its `attachments[]` and
-  `notes[]`.
+- A ticket passed as the reference is read with `mcp__meldom__ticket_view` in its `detailed` form, paging the body
+  and relations so nothing is trimmed, including its `attachments[]` and `notes[]`.
 - Step 5 publishes to Meldom only: one `mcp__meldom__ticket_batch_create` transaction, blocking edges as native
   `blocked_by_index` links. Upstream's local-files branch (`.scratch/`, the per-file ticket template) and the
   `ready-for-agent` label are dropped; the `/setup-matt-pocock-skills` precondition line too (global rule 4).
@@ -355,6 +356,8 @@ No recorded divergence. Wording differs from upstream where upstream rewrote it 
 ### triage (`engineering/triage`)
 
 - **Model-invoked** (global rule 3).
+- The ticket is read with `mcp__meldom__ticket_view` in its `detailed` form, paging the body and relations so
+  nothing is trimmed.
 - Roles map onto **Meldom ticket fields** (`status`, `assignee`, labels) instead of the label vocabulary
   `setup-matt-pocock-skills` used to write into a config file. There is no label file to read.
 - `OUT-OF-SCOPE.md`: the rejected-request knowledge base is Meldom **notes** labelled `out-of-scope`, one per

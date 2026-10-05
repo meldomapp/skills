@@ -22,6 +22,8 @@ tagged `v<version>`.
 - `code-review`'s description says what it reviews: the commits since a fixed point plus staged, unstaged and
   untracked work, and with no fixed point on a dirty tree, the uncommitted work against `HEAD`.
 - `bulletproof`'s edge-case table links `references/structural-review.md`, as its steps do.
+- `implement`, `implement-spec`, `triage` and `to-tickets` read a ticket in its `detailed` form and page its body
+  and relations, as `code-review` does, so a long spec is never read trimmed.
 
 ## 1.0.12
 

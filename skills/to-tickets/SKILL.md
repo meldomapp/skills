@@ -11,7 +11,7 @@ Break a plan, spec, or conversation into a set of **tickets**: tracer-bullet ver
 
 ### 1. Gather context
 
-Work from whatever is already in the conversation context. If the user passes a reference (a spec path, a ticket key or ULID) as an argument, fetch it and read its full body and comments: a ticket is read with `mcp__meldom__ticket_view({ "id": "<key or ulid>" })`, including its `attachments[]` (Read an attached mockup or spec image) and `notes[]`.
+Work from whatever is already in the conversation context. If the user passes a reference (a spec path, a ticket key or ULID) as an argument, fetch it and read its full body and comments: a ticket is read with `mcp__meldom__ticket_view({ "id": "<key or ulid>", "response_format": "detailed" })`, including its `attachments[]` (Read an attached mockup or spec image) and `notes[]`. The default `concise` trims the body and caps each relation at 10 rows, which would silently cut the spec you are slicing: page the body with `body_offset` while it returns one, and page `comments` / `attachments` / `notes` with `relation` + `relation_offset` when they report a `next_cursor`.
 
 ### 2. Explore the codebase (optional)
 
