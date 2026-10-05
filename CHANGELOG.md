@@ -28,6 +28,8 @@ tagged `v<version>`.
 - `explore-approaches` asks the user in plain words rather than naming one provider's question tool.
 - A `wizard` waits for Enter before clearing each finished stage, so its confirmations are read, and its summary
   lists the GitHub variables it set.
+- `merge-worktree` waits on required checks with `gh pr checks --watch --fail-fast` and on a peer's landing with
+  one 30-second re-check loop, instead of an open-ended poll.
 
 ## 1.0.12
 
