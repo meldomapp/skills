@@ -25,11 +25,12 @@ codex plugin add meldom@meldom
 Both providers namespace a plugin's skills, so they are invoked as `/meldom:<skill>` in Claude Code and
 `$meldom:<skill>` in Codex. Nothing here can shadow a skill of your own that happens to share a name.
 
-**Updating.** The two providers differ, and the obvious command is wrong on one of them:
+**Updating.** The two providers differ, and the obvious command is wrong on one of them. Codex's needs the
+marketplace name, or it upgrades every marketplace you have added:
 
 ```bash
-claude plugin update meldom@meldom     # refreshes the marketplace itself; `plugin install` will NOT upgrade
-codex plugin marketplace upgrade       # replaces the version-keyed cache; no reinstall needed
+claude plugin update meldom@meldom       # refreshes the marketplace itself; `plugin install` will NOT upgrade
+codex plugin marketplace upgrade meldom  # replaces the version-keyed cache; no reinstall needed
 ```
 
 **Removing** — `claude plugin uninstall meldom@meldom` or `codex plugin remove meldom@meldom`. Both leave the

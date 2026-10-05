@@ -14,6 +14,8 @@ tagged `v<version>`.
   question. A clean tree with no fixed point still asks.
 - `implement` calls `code-review` with `HEAD`, so its review step sees exactly what the session built before
   anything is committed.
+- The README's Codex update command is `codex plugin marketplace upgrade meldom`. Without the name, Codex
+  upgrades every Git marketplace you have added.
 
 ## 1.0.12
 
