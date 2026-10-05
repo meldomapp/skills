@@ -3,6 +3,18 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.13
+
+`code-review` reviews uncommitted work.
+
+- The review covers `git diff $(git merge-base <fixed-point> HEAD)` — commits since the merge-base plus staged
+  and unstaged changes — and every untracked file, read whole. It stops before its sub-agents only on a bad ref
+  or an empty change set.
+- With no fixed point on a dirty tree, the fixed point is `HEAD`, so the uncommitted work is reviewed without a
+  question. A clean tree with no fixed point still asks.
+- `implement` calls `code-review` with `HEAD`, so its review step sees exactly what the session built before
+  anything is committed.
+
 ## 1.0.12
 
 New `security-audit` skill for finding exploitable security weaknesses and checking security fixes.

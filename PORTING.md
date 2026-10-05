@@ -176,6 +176,10 @@ maintainer-specific rule file names, no harness-specific tool names presented as
   `.scratch/`.
 - After aggregating, confirmed Spec findings are posted as one `mcp__meldom__comment_create` comment on the
   ticket, when a ticket was found, so the review is visible on the board.
+- The review covers the working tree, not only commits. It diffs against the merge-base
+  (`git diff $(git merge-base <fp> HEAD)`: commits since it plus staged and unstaged changes) and reviews each
+  untracked file (`git ls-files --others --exclude-standard`) whole. With no fixed point on a dirty tree, the
+  fixed point is `HEAD`. That is what lets `implement` review its work before anything is committed.
 - The Smell Baseline stays inline **and** is mirrored into `agents/meldom-reviewer.md`, which `bulletproof`
   spawns. That section carries an HTML comment naming this skill as its upstream source; a smell-baseline
   change ports into both places.
