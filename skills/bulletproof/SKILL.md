@@ -83,14 +83,14 @@ ALL must be true: tests pass (fresh — through the project's own test script, n
 
 ## Edge Cases
 
-| Scenario                                  | Handling                                                                       |
-| ----------------------------------------- | ------------------------------------------------------------------------------ |
-| LSP unavailable                           | Fall back to Grep + build/test. Note in evidence report                        |
-| Change > 3000 lines                       | Parallel 3-agent review delegation per structural-review.md                    |
-| Reviewer and implementer disagree         | Escalate to user with both perspectives                                        |
-| Confidence stuck at MEDIUM after 2 cycles | Escalate with specific blockers                                                |
-| User says "stop" or "good enough"         | Respect intent. Show current confidence + remaining risks                      |
-| No tests exist                            | Note as verification gap. Rely on build, LSP, reviewer. Recommend adding tests |
-| Security finding with no clear mitigation | Escalate to user. Do not ship                                                  |
+| Scenario                                  | Handling                                                                                    |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------- |
+| LSP unavailable                           | Fall back to Grep + build/test. Note in evidence report                                     |
+| Change > 3000 lines                       | Parallel 3-agent review delegation per [structural review](references/structural-review.md) |
+| Reviewer and implementer disagree         | Escalate to user with both perspectives                                                     |
+| Confidence stuck at MEDIUM after 2 cycles | Escalate with specific blockers                                                             |
+| User says "stop" or "good enough"         | Respect intent. Show current confidence + remaining risks                                   |
+| No tests exist                            | Note as verification gap. Rely on build, LSP, reviewer. Recommend adding tests              |
+| Security finding with no clear mitigation | Escalate to user. Do not ship                                                               |
 
 Task: $ARGUMENTS

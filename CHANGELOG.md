@@ -19,6 +19,9 @@ tagged `v<version>`.
 - `bulletproof` Phase 6 is steps 16 and 17, so no step number repeats.
 - In `bulletproof`, a change over 3000 lines is split across three review agents per
   `references/structural-review.md`, which is where that procedure lives.
+- `code-review`'s description says what it reviews: the commits since a fixed point plus staged, unstaged and
+  untracked work, and with no fixed point on a dirty tree, the uncommitted work against `HEAD`.
+- `bulletproof`'s edge-case table links `references/structural-review.md`, as its steps do.
 
 ## 1.0.12
 

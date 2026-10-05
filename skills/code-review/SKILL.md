@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating meldom ticket asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
+description: "Review changes along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating meldom ticket asked for?). Covers the commits since a fixed point (commit, branch, tag, or merge-base) plus staged, unstaged and untracked work; with no fixed point on a dirty tree, it reviews the uncommitted work against HEAD. Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress or uncommitted changes, or asks to \"review since X\"."
 ---
 
 Two-axis review of everything since a fixed point: the commits after it, plus uncommitted (staged, unstaged and untracked) changes:
