@@ -4,7 +4,7 @@
 //
 // No dependencies on purpose: this runs on a bare `node` in CI, before anything is installed.
 
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -91,7 +91,6 @@ for (const name of skillNames) {
     const file = join(skillsDir, name, 'SKILL.md');
     let content;
     try {
-        statSync(file);
         content = readFileSync(file, 'utf8');
     } catch {
         fail(`skills/${name}/SKILL.md: missing`);
@@ -136,17 +135,17 @@ for (const name of skillNames) {
 
 // --- Agents ---------------------------------------------------------------------------------------------
 
-// The two subagents ship with the plugin, so they run on whatever model the user's harness gives them. A
-// `model:` pin would silently override that with one the maintainer happened to prefer — PORTING.md rule 6
-// bans it, and nothing else checks.
-for (const agentFile of ['meldom-reviewer.md', 'meldom-worker.md']) {
-    let content;
-    try {
-        content = readFileSync(join(ROOT, 'agents', agentFile), 'utf8');
-    } catch {
-        fail(`agents/${agentFile}: missing`);
-        continue;
-    }
+// Every subagent ships with the plugin, so it runs on whatever model the user's harness gives it. A `model:`
+// pin would silently override that with one the maintainer happened to prefer — PORTING.md rule 6 bans it,
+// and nothing else checks. Read from the directory, so a new agent is checked the moment it is added.
+let agentFiles = [];
+try {
+    agentFiles = readdirSync(join(ROOT, 'agents')).filter((entry) => entry.endsWith('.md'));
+} catch {
+    fail('agents/: missing or unreadable');
+}
+for (const agentFile of agentFiles) {
+    const content = readFileSync(join(ROOT, 'agents', agentFile), 'utf8');
     const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/.exec(content)?.[1];
     if (frontmatter === undefined) {
         fail(`agents/${agentFile}: has no frontmatter block`);
@@ -165,7 +164,7 @@ for (const file of allFiles(ROOT)) {
     const rel = relative(ROOT, file);
     if (!rel.endsWith('SKILL.md')) continue;
     // `relative()` uses the platform separator, so compare on a normalized copy: a hardcoded `/` would fail
-    // every skill on Windows and take this file's own self-exemption below with it.
+    // every skill on Windows.
     const posix = rel.split(sep).join('/');
     if (!/^skills\/[^/]+\/SKILL\.md$/.test(posix)) fail(`${posix}: a SKILL.md must sit exactly at skills/<name>/SKILL.md`);
 }
@@ -198,8 +197,8 @@ const BANNED_EXEMPT = new Set(['PORTING.md', 'CHANGELOG.md']);
 
 for (const file of allFiles(ROOT)) {
     const rel = relative(ROOT, file);
-    // This file NAMES the banned strings in order to ban them, so it checks itself by identity rather than by
-    // path — a second script under `scripts/` gets no exemption.
+    // This file NAMES the banned strings in order to ban them, so it skips exactly its own path — a second
+    // script under `scripts/` gets no exemption.
     if (rel === join('scripts', 'validate.mjs')) continue;
     if (BANNED_EXEMPT.has(rel)) continue;
     let content;
