@@ -43,11 +43,11 @@ for it by name.
 
 | Skill                           | What it does                                                                          | Invoked by    |
 | ------------------------------- | ------------------------------------------------------------------------------------- | ------------- |
-| `ask-meldom`                    | The map: which skill or flow fits your situation, and how they connect.               | user-invoked  |
-| `to-spec`                       | Turn the conversation into a spec and publish it as a ticket of type `spec`.          | user-invoked  |
-| `to-tickets`                    | Break a plan or spec into vertical-slice tickets with blocking edges.                 | user-invoked  |
-| `implement`                     | Build a ticket or spec in the current session, test-first.                            | user-invoked  |
-| `implement-spec`                | Implement a whole spec on one integration branch with parallel subagents.             | user-invoked  |
+| `ask-meldom`                    | The map: which skill or flow fits your situation, and how they connect.               | model-invoked |
+| `to-spec`                       | Turn the conversation into a spec and publish it as a ticket of type `spec`.          | model-invoked |
+| `to-tickets`                    | Break a plan or spec into vertical-slice tickets with blocking edges.                 | model-invoked |
+| `implement`                     | Build a ticket or spec in the current session, test-first.                            | model-invoked |
+| `implement-spec`                | Implement a whole spec on one integration branch with parallel subagents.             | model-invoked |
 | `triage`                        | Move incoming tickets you did not author through categorise → verify → brief.         | user-invoked  |
 | `improve-codebase-architecture` | Find deepening opportunities, show them as an HTML report, then grill the one you pick. | user-invoked  |
 | `wayfinder`                     | Plan work too big for one session as a shared map of decision tickets.                | user-invoked  |
@@ -62,7 +62,7 @@ for it by name.
 | `tdd`                           | Test-driven development: the red-green-refactor loop.                                 | model-invoked |
 | `writing-for-agents`            | Writing documents for agents: skills, AGENTS.md, CLAUDE.md.                           | model-invoked |
 | `teach`                         | Teach a concept or skill, in this workspace, at the right depth.                      | user-invoked  |
-| `handoff`                       | Compact the conversation into a handoff document, as a file and a meldom note.        | user-invoked  |
+| `handoff`                       | Compact the conversation into a handoff document, as a file and a meldom note.        | model-invoked |
 | `wait-what`                     | Stop — that last message did not land. Re-pitch it.                                   | user-invoked  |
 | `retro`                         | Conduct a retrospective on a coding session.                                          | user-invoked  |
 | `ship`                          | Commit and push from a Meldom chat through the ship review card.                      | model-invoked |

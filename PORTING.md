@@ -62,6 +62,11 @@ user-invoked skill sets `disable-model-invocation: true` in `SKILL.md` **and**
 `policy.allow_implicit_invocation: false` in `agents/openai.yaml`; a model-invoked skill sets neither. The two
 must always agree, and `scripts/validate.mjs` enforces it.
 
+One exception, so Meldom agents working without a human can build from tickets, find the right skill and hand
+off at a phase boundary: `implement`, `implement-spec`, `to-spec`, `to-tickets`, `ask-meldom` and `handoff` are
+**model-invoked** here, though upstream makes them user-invoked. Their
+`disable-model-invocation` line and `policy` block are dropped; everything else stays upstream's.
+
 ### 4. Meldom is the tracker
 
 The issue tracker is Meldom. `meldom:setup-matt-pocock-skills` records it in `docs/agents/issue-tracker.md` from

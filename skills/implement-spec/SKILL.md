@@ -1,7 +1,6 @@
 ---
 name: implement-spec
 description: "Implement the result of /meldom:to-spec and /meldom:to-tickets in code."
-disable-model-invocation: true
 ---
 
 You have been provided a spec. This spec should have tickets associated with it, describing how to implement the spec.

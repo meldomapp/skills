@@ -3,6 +3,12 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.15
+
+- `implement`, `implement-spec`, `to-spec`, `to-tickets`, `ask-meldom` and `handoff` are model-invoked again, so a
+  Meldom agent can reach them through the Skill tool without a human typing their name. Upstream keeps them
+  user-invoked.
+
 ## 1.0.14
 
 Every ported skill is upstream's text again, synced to mattpocock/skills `6fd9479`. Meldom's additions sit in one
