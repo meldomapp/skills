@@ -36,6 +36,9 @@ tagged `v<version>`.
 - `merge-worktree`'s waits end. The peer-landing loop gives up after 30 minutes and reports a detached
   submodule instead of waiting on it; the merge wait stops on a closed PR or a cancelled auto-merge and gives up
   after 20 minutes; `gh pr checks` reporting no checks right after a push is run again after 30 seconds.
+- `code-review`, `implement`, `implement-spec`, `triage` and `to-tickets` page a ticket body by the field
+  `ticket_view` returns: while the result carries `next_body_cursor`, they call again with
+  `body_offset: <next_body_cursor>`.
 
 ## 1.0.12
 

@@ -40,7 +40,7 @@ Look for the originating spec, in this order:
 4. A spec path the user passed as an argument.
 5. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
 
-Read the ticket with `mcp__meldom__ticket_view({ "id": <id>, "response_format": "detailed" })` — the default `concise` trims the body and caps each relation at 10 rows, which would silently truncate the spec you are reviewing against. Page the body with `body_offset` while it returns one, and page `attachments` / `notes` with `relation` + `relation_offset` when they report a `next_cursor`. Include its `attachments[]` (Read an attached mockup or spec image — it grounds what "as asked for" means) and its attached `notes[]`. Keep the ticket id: step 6 posts the Spec findings back to it.
+Read the ticket with `mcp__meldom__ticket_view({ "id": <id>, "response_format": "detailed" })` — the default `concise` trims the body and caps each relation at 10 rows, which would silently truncate the spec you are reviewing against. While the result carries `next_body_cursor`, call again with `body_offset: <next_body_cursor>`, and page `attachments` / `notes` with `relation` + `relation_offset` when they report a `next_cursor`. Include its `attachments[]` (Read an attached mockup or spec image — it grounds what "as asked for" means) and its attached `notes[]`. Keep the ticket id: step 6 posts the Spec findings back to it.
 
 ### 3. Identify the standards sources
 

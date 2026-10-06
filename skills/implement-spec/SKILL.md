@@ -28,7 +28,7 @@ This is the heavy path — many subagents, a branch, a PR, then a full review pa
 
 ## Steps
 
-1. Read the spec and its tickets — `mcp__meldom__ticket_view({ "id": <spec-id>, "response_format": "detailed" })` for the spec body, then its children with their `blocked_by` edges. The default `concise` trims the body and caps each relation at 10 rows, which would silently cut the spec and its children: page the body with `body_offset` while it returns one, and page `children` / `attachments` / `notes` with `relation` + `relation_offset` when they report a `next_cursor`. Read enough to understand the task graph. Read attached `notes[]` and `attachments[]`; an attachment's local `path` is Readable.
+1. Read the spec and its tickets — `mcp__meldom__ticket_view({ "id": <spec-id>, "response_format": "detailed" })` for the spec body, then its children with their `blocked_by` edges. The default `concise` trims the body and caps each relation at 10 rows, which would silently cut the spec and its children: while the result carries `next_body_cursor`, call again with `body_offset: <next_body_cursor>`, and page `children` / `attachments` / `notes` with `relation` + `relation_offset` when they report a `next_cursor`. Read enough to understand the task graph. Read attached `notes[]` and `attachments[]`; an attachment's local `path` is Readable.
 
 2. (optional) Use an **exploration subagent** to conduct any exploration required by the tickets - relevant codebase files or external documentation. Ensure the exploration subagent can save files - it should save its markdown notes in a directory outside the repo, accessible by all future subagents. This lets **implementer subagents** focus on implementation rather than exploration.
 
