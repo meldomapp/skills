@@ -3,6 +3,43 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.13
+
+`code-review` reviews uncommitted work.
+
+- The review covers `git diff $(git merge-base <fixed-point> HEAD)` — commits since the merge-base plus staged
+  and unstaged changes — and every untracked file, read whole. It stops before its sub-agents only on a bad ref
+  or an empty change set.
+- With no fixed point on a dirty tree, the fixed point is `HEAD`, so the uncommitted work is reviewed without a
+  question. A clean tree with no fixed point still asks.
+- `implement` calls `code-review` with `HEAD`, so its review step sees exactly what the session built before
+  anything is committed.
+- The README's Codex update command is `codex plugin marketplace upgrade meldom`. Without the name, Codex
+  upgrades every Git marketplace you have added.
+- `bulletproof` Phase 6 is steps 16 and 17, so no step number repeats.
+- In `bulletproof`, a change over 3000 lines is split across three review agents per
+  `references/structural-review.md`, which is where that procedure lives.
+- `code-review`'s description says what it reviews: the commits since a fixed point plus staged, unstaged and
+  untracked work, and with no fixed point on a dirty tree, the uncommitted work against `HEAD`.
+- `bulletproof`'s edge-case table links `references/structural-review.md`, as its steps do.
+- `implement`, `implement-spec`, `triage` and `to-tickets` read a ticket in its `detailed` form and page its body
+  and relations, as `code-review` does, so a long spec is never read trimmed.
+- `meldom-worker` says it receives the ticket body, which is what `implement-spec` hands it.
+- `explore-approaches` asks the user in plain words rather than naming one provider's question tool.
+- A `wizard` waits for Enter before clearing each finished stage, so its confirmations are read, and its summary
+  lists the GitHub variables it set.
+- `merge-worktree` waits on required checks with `gh pr checks --watch --fail-fast --required` and on a peer's
+  landing with one 30-second re-check loop, instead of an open-ended poll, and says to give those waits a long
+  timeout or run them in the background.
+- `merge-worktree`'s peer-landing loop finds the main checkout's `MERGE_HEAD` by its absolute path, so it sees a
+  merge in progress from any working directory.
+- `merge-worktree`'s waits end. The peer-landing loop gives up after 30 minutes and reports a detached
+  submodule instead of waiting on it; the merge wait stops on a closed PR or a cancelled auto-merge and gives up
+  after 20 minutes; `gh pr checks` reporting no checks right after a push is run again after 30 seconds.
+- `code-review`, `implement`, `implement-spec`, `triage` and `to-tickets` page a ticket body by the field
+  `ticket_view` returns: while the result carries `next_body_cursor`, they call again with
+  `body_offset: <next_body_cursor>`.
+
 ## 1.0.12
 
 New `security-audit` skill for finding exploitable security weaknesses and checking security fixes.

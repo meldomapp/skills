@@ -21,7 +21,7 @@ diff -ru /tmp/mp-skills/skills/<bucket>/<upstream-name> skills/<local-name>
 Run it per skill, over every file, and over every row of the mapping table below.
 
 **What it proves, and what it does not.** It surfaces every difference, and there are a lot of them: about
-1,400 lines across the mapped skills at baseline `6654f6b`. That is expected. Most of it is **wording**, not
+1,300 lines across the mapped skills at the baseline above. That is expected. Most of it is **wording**, not
 drift: upstream ran a house-style pass that removed em-dashes *and rewrote the clauses around them*, and we did
 not follow it (Global rule 2), so a ported file often says the same thing in different words.
 
@@ -111,6 +111,13 @@ The plugin is public and MIT. No path into the Meldom desktop repo, no `~/.meldo
 maintainer-specific rule file names, no harness-specific tool names presented as if every harness has them, no
 `model:` pin on an agent.
 
+### 7. Every wait and every read has an end
+
+A wait names one blocking command (`gh pr checks --watch --fail-fast --required`) or one shell loop with an
+interval and a ceiling ("every 30 seconds for up to 30 minutes"), never an open-ended "poll until". A skill that
+reads a spec asks `ticket_view` for `response_format: "detailed"` and pages the body by `next_body_cursor`, so a
+long spec is never read trimmed. `merge-worktree` and `implement` are the models.
+
 ## Mapping
 
 | Upstream                                    | Local                           | Section |
@@ -145,7 +152,7 @@ maintainer-specific rule file names, no harness-specific tool names presented as
 | `productivity/writing-for-agents`           | `writing-for-agents`            | yes     |
 
 **Meldom-only, no upstream source.** The sync never diffs these and never rewrites them:
-`bulletproof`, `explore-approaches`, `merge-worktree`, `ship`, `agents/meldom-worker.md`, and
+`bulletproof`, `explore-approaches`, `merge-worktree`, `security-audit`, `ship`, `agents/meldom-worker.md`, and
 `agents/meldom-reviewer.md` (except its Smell Baseline section, below).
 
 ## Per-skill divergences
@@ -176,6 +183,10 @@ maintainer-specific rule file names, no harness-specific tool names presented as
   `.scratch/`.
 - After aggregating, confirmed Spec findings are posted as one `mcp__meldom__comment_create` comment on the
   ticket, when a ticket was found, so the review is visible on the board.
+- The review covers the working tree, not only commits. It diffs against the merge-base
+  (`git diff $(git merge-base <fp> HEAD)`: commits since it plus staged and unstaged changes) and reviews each
+  untracked file (`git ls-files --others --exclude-standard`) whole. With no fixed point on a dirty tree, the
+  fixed point is `HEAD`. That is what lets `implement` review its work before anything is committed.
 - The Smell Baseline stays inline **and** is mirrored into `agents/meldom-reviewer.md`, which `bulletproof`
   spawns. That section carries an HTML comment naming this skill as its upstream source; a smell-baseline
   change ports into both places.
@@ -224,8 +235,8 @@ No divergence beyond the global namespacing rule. Wording differs where upstream
 ### implement (`engineering/implement`)
 
 - **Model-invoked** (global rule 3).
-- Rewritten against Meldom throughout: the spec is a parent ticket read with `mcp__meldom__ticket_view`, the
-  claim is `mcp__meldom__ticket_batch_update` to `in_progress`, per-ticket completion is `ticket_update` to
+- Rewritten against Meldom throughout: the spec is a parent ticket read with `mcp__meldom__ticket_view` in its
+  `detailed` form, paging the body and relations so nothing is trimmed, the claim is `mcp__meldom__ticket_batch_update` to `in_progress`, per-ticket completion is `ticket_update` to
   `done` with a reason, the review outcome is `mcp__meldom__ticket_outcome`, and the parent is closed explicitly
   because Meldom never rolls parent status up from children.
 - Hands off to `meldom:implement-spec` for the parallel, one-PR path, and says that skill is user-invoked so it
@@ -257,7 +268,8 @@ No divergence beyond the global namespacing rule. Wording differs where upstream
 
 ### implement-spec (`in-progress/implement-spec`)
 
-- The spec is a Meldom parent ticket of `type: "spec"`; its children are the slices. Ticket state is owned by this
+- The spec is a Meldom parent ticket of `type: "spec"`; its children are the slices. It is read with
+  `mcp__meldom__ticket_view` in its `detailed` form, paging the body and relations so nothing is trimmed. Ticket state is owned by this
   session through `mcp__meldom__*`; subagents never call Meldom, so they are handed the ticket **body**, not an
   id.
 - Implementer subagents are `Agent(subagent_type: "meldom:meldom-worker")`, with an explicit fallback for
@@ -313,6 +325,11 @@ No recorded divergence. Wording differs from upstream where upstream rewrote it 
 - The coding-standards candidate names the plugin's own reviewer agent, `meldom:meldom-reviewer`, and its Smell
   Baseline, because that is where a new rule would actually go here.
 
+### security-audit (no upstream source)
+
+Copied from the local Claude `security-audit` skill. `SKILL.md` is unchanged. The plugin adds
+`agents/openai.yaml` for Codex display metadata; invocation remains model-invoked.
+
 ### tdd (`engineering/tdd`)
 
 - Adds one rule of the loop: the loop runs the seam's tests, and whole-project checks run once, after the last
@@ -339,8 +356,8 @@ No recorded divergence. Wording differs from upstream where upstream rewrote it 
 ### to-tickets (`engineering/to-tickets`)
 
 - **Model-invoked** (global rule 3), with a model-facing description.
-- A ticket passed as the reference is read with `mcp__meldom__ticket_view`, including its `attachments[]` and
-  `notes[]`.
+- A ticket passed as the reference is read with `mcp__meldom__ticket_view` in its `detailed` form, paging the body
+  and relations so nothing is trimmed, including its `attachments[]` and `notes[]`.
 - Step 5 publishes to Meldom only: one `mcp__meldom__ticket_batch_create` transaction, blocking edges as native
   `blocked_by_index` links. Upstream's local-files branch (`.scratch/`, the per-file ticket template) and the
   `ready-for-agent` label are dropped; the `/setup-matt-pocock-skills` precondition line too (global rule 4).
@@ -351,6 +368,8 @@ No recorded divergence. Wording differs from upstream where upstream rewrote it 
 ### triage (`engineering/triage`)
 
 - **Model-invoked** (global rule 3).
+- The ticket is read with `mcp__meldom__ticket_view` in its `detailed` form, paging the body and relations so
+  nothing is trimmed.
 - Roles map onto **Meldom ticket fields** (`status`, `assignee`, labels) instead of the label vocabulary
   `setup-matt-pocock-skills` used to write into a config file. There is no label file to read.
 - `OUT-OF-SCOPE.md`: the rejected-request knowledge base is Meldom **notes** labelled `out-of-scope`, one per
@@ -385,6 +404,10 @@ No recorded divergence. Wording differs from upstream where upstream rewrote it 
 ### wizard (`engineering/wizard`)
 
 - `template.sh` is generated by `meldom:wizard`, so its header comment names the namespaced skill.
+- `template.sh` waits for Enter before each `stage` after the first and before `finish` clear the screen, so a
+  stage's `✓ wrote` / `✓ set` lines are read before they vanish; upstream clears straight away, which made the
+  skill's "confirms at every stage" untrue. Its summary also lists the GitHub variables `set_var` wrote, which
+  upstream's leaves out.
 
 ### writing-for-agents (`productivity/writing-for-agents`)
 
@@ -410,8 +433,3 @@ Upstream skills this plugin deliberately does not ship. `localMapping` maps each
 **Watched** means the sync still diffs it every run and asks one question: does this change add a config section
 that a skill we *do* ship now reads? A yes is ported or consciously dropped; silence is the failure mode this
 column exists to prevent. Everything else is skipped without a diff.
-
-### security-audit
-
-Copied from the local Claude `security-audit` skill. `SKILL.md` is unchanged. The plugin adds
-`agents/openai.yaml` for Codex display metadata; invocation remains model-invoked.

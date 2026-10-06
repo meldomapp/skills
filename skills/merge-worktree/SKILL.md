@@ -30,7 +30,17 @@ git -C <submodule-path> merge-base --is-ancestor <theirs> <ours>   # ours contai
 
 Neither contains the other → a real divergence: resolve it with your own reading of both sides.
 
-**A peer landing** — a merge in progress, `UU` entries, or a detached submodule in the main checkout that you did not create — is another agent's landing, never "unrelated changes". Wait and re-check until it clears, and touch nothing of theirs. There is no lock: this rule is the only thing keeping two landings out of each other's way.
+**A peer landing** — a merge in progress or `UU` entries in the main checkout or one of its submodules, that you did not create — is another agent's landing, never "unrelated changes". Wait for it in ONE shell command that re-checks every 30 seconds for up to 30 minutes, and touch nothing of theirs. There is no lock: this rule is the only thing keeping two landings out of each other's way.
+
+```bash
+M=<main-checkout>
+busy() { test -e "$(git -C "$M" rev-parse --path-format=absolute --git-path MERGE_HEAD)" || git -C "$M" status --porcelain | grep -q '^UU' \
+  || git -C "$M" submodule foreach --quiet --recursive 'test -e "$(git rev-parse --path-format=absolute --git-path MERGE_HEAD)" && echo busy; true' | grep -q busy; }
+for i in $(seq 60); do busy || break; sleep 30; done; busy && echo STILL-BUSY
+git -C "$M" submodule foreach --quiet --recursive 'git symbolic-ref -q HEAD >/dev/null || echo "DETACHED: $displaypath"'
+```
+
+`STILL-BUSY` → tell the user which merge is still open and carry on when they answer. A `DETACHED` submodule with no merge in progress is no landing: report it, and Phase 4 puts it back on its branch.
 
 ## Phase 1 — Preflight
 
@@ -59,13 +69,22 @@ Remote path, per repo:
 ```bash
 gh pr create --base <original-branch> --head <branch>    # or reuse the open one
 gh pr merge <number> --merge
-gh pr view <number> --json state,mergeStateStatus        # poll until state is MERGED
+gh pr view <number> --json state,mergeStateStatus        # state must read MERGED
 ```
 
 - **A merge commit, always.** Never `--squash` and never `--rebase`: a squash mints a new commit the worktree's own checkout does not have, which is what makes a superrepo pointer stale and a worktree branch look unmerged.
 - **Never delete the branch as part of the merge.** The remote branch goes in Phase 6, after removal has confirmed the work is durable.
 - **Not mergeable** → repair it INSIDE the worktree, not on the remote: `git fetch origin <base>`, `git merge origin/<base>`, resolve, push, then merge the PR.
-- **Blocked by required checks** → `gh pr merge <number> --merge --auto` and poll. Waiting is a pause, not an end.
+- **Blocked by required checks** → `gh pr merge <number> --merge --auto`, then wait in one blocking call: `gh pr checks <number> --watch --fail-fast --required`. It returns when every required check has passed or the first one fails; a failure is fixed inside the worktree and pushed. If it reports no checks right after a push, wait 30 seconds and run it again. After a clean exit the queued merge is landing; re-check it every 30 seconds for up to 20 minutes in one call:
+
+  ```bash
+  for i in $(seq 40); do
+    s=$(gh pr view <number> --json state,autoMergeRequest -q '"\(.state) \(.autoMergeRequest != null)"')
+    [ "$s" = "OPEN true" ] || break; sleep 30
+  done; echo "$s"
+  ```
+
+  A state of `MERGED` (either flag) → carry on. Anything else — `CLOSED`, `OPEN false` (auto-merge cancelled), or `OPEN true` after the ceiling — tell the user what it reads and carry on when they answer. These waits, like the peer-landing loop, can outlast a default command timeout: run them with a long timeout or in the background. Waiting is a pause, not an end.
 - Confirm `state: MERGED` before moving on.
 
 **Superrepo, right after a submodule merges**: move the worktree's own submodule checkout to the merged remote head before staging the pointer, so the pointer names a commit that is actually on the submodule's remote.
@@ -211,9 +230,9 @@ A superrepo on the remote path with a submodule that has **no shared remote at a
 | Stale submodule SHA in the worktree                        | Fetch and check out the merged remote head in the worktree's submodule before staging the pointer                              |
 | The shared submodule checkout comes back detached          | Something ran a recursive submodule update in the main checkout. Check out its branch and pull, never that                     |
 | Untracked user files in the main checkout                  | `git stash push -u` before Phase 4, `git stash pop` after. Never move, delete or exclude them                                  |
-| A peer's half-done merge in the shared checkout            | Wait and re-check. It is another landing, not unrelated changes                                                                |
+| A peer's half-done merge in the shared checkout            | Wait in the 30-second re-check loop. It is another landing, not unrelated changes                                              |
 | Squashing or rebasing the PR                               | Always `--merge`. A squash strands the worktree's own commits and makes the superrepo pointer stale                            |
-| `gh pr merge` blocked by required checks                   | Queue with `--auto` and poll. Never force past a required check                                                                |
+| `gh pr merge` blocked by required checks                   | Queue with `--auto`, wait on `gh pr checks --watch --fail-fast --required`. Never force past a required check                  |
 | `git checkout <original-branch>` fails inside the worktree | Git refuses a branch already checked out elsewhere — merge from the main checkout instead                                      |
 | `ship_review` fails with an error                          | Follow `meldom:ship`'s rule: retry the card when it was retracted or the request died. Raw `git commit` is never the way past |
 | Remote branch deleted too early                            | Only after MERGED, a successful removal, AND `merged: true`. Otherwise it is the only durable copy                             |
