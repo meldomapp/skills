@@ -2,10 +2,10 @@
 
 Most of the skills here are ports of [mattpocock/skills](https://github.com/mattpocock/skills). This file is
 the single source of truth for **what we changed and why**. A sync agent reads it to tell a real upstream
-change from a deliberate local edit: a difference in *behaviour* that is not written down here is a bug in the
-port. A difference in *wording* usually is not — see the fidelity check below for how to tell them apart.
+change from a deliberate local edit: a difference from upstream that is not written down here is a bug in the
+port.
 
-- **Upstream baseline**: `c55ee46` (checked 2026-09-26)
+- **Upstream baseline**: `6fd9479` (checked 2026-10-06)
 - **Upstream buckets**: `skills/engineering/`, `skills/productivity/`, `skills/in-progress/`, `skills/misc/`.
   Skills are matched by **leaf folder name**, not by bucket.
 - **Mapping**: the sync tool keeps a machine-readable `upstream name -> local name` map alongside the commit it
@@ -18,20 +18,9 @@ git clone --depth 1 https://github.com/mattpocock/skills /tmp/mp-skills
 diff -ru /tmp/mp-skills/skills/<bucket>/<upstream-name> skills/<local-name>
 ```
 
-Run it per skill, over every file, and over every row of the mapping table below.
-
-**What it proves, and what it does not.** It surfaces every difference, and there are a lot of them: about
-1,300 lines across the mapped skills at the baseline above. That is expected. Most of it is **wording**, not
-drift: upstream ran a house-style pass that removed em-dashes *and rewrote the clauses around them*, and we did
-not follow it (Global rule 2), so a ported file often says the same thing in different words.
-
-Do not try to filter that out mechanically. Mapping `—` to `-` on both sides looks like it should help and
-**removes nothing** — measured over every mapped skill, zero diff lines — because upstream replaced each dash
-with a colon or a semicolon and reflowed the sentence. There is no cheap normalization here.
-
-So the check is a **reading list**, not a pass/fail gate. Work through the hunks; for each, decide whether it is
-a divergence this file names, our wording, or a real upstream content change nobody ported. Only the third is a
-finding. When you find one, port it and add a bullet here.
+Run it per skill, over every file, and over every row of the mapping table below. Each ported file is
+upstream's text as upstream wrote it, so every differing line is one of the global rules below or a bullet in
+that skill's section. A differing line that is neither is a finding: port upstream's text, or add the bullet.
 
 ## Global rules
 
@@ -39,66 +28,58 @@ These hold for every ported file. They are not repeated in the per-skill section
 
 ### 1. Namespacing
 
-The plugin is installed as `meldom`, so both providers address its skills as `meldom:<name>`. Exactly two
-things get the prefix:
+The plugin is installed as `meldom`, so both providers address its skills as `meldom:<name>`. Exactly these
+get the prefix:
 
-- an **operative instruction to call the Skill tool** (`Call the Skill tool with "meldom:tdd"`), and
-- a **mention of a skill by name in prose** (`the meldom:code-review skill`).
+- an **operative instruction to call the Skill tool**: upstream's `Call the Skill tool with "grilling"` is
+  `Call the Skill tool with "meldom:grilling"`; a bare name does not resolve for someone who installed only
+  this plugin;
+- a **slash mention of a skill**: upstream's `/grill-me` is `/meldom:grill-me`, the command a user types;
+- a **mention of a skill by name in prose**: `the meldom:code-review skill`.
 
 Never prefixed: label values, file names, directory names, URL paths, ordinary English words. `wayfinder:<type>`
 labels stay the plain strings `research`, `prototype`, `grilling`, `task`. A prototype route named after the
 skill is `prototype`, not `meldom:prototype`.
 
-Upstream writes skill dependencies as `Call the Skill tool with "grilling"`; we write
-`Call the Skill tool with "meldom:grilling"`. A bare name would not resolve for someone who installed only this
-plugin. This substitution is expected in **every** ported file and is not listed per skill.
+### 2. Upstream's text
 
-The two agents ship under the plugin too, so their subagent type is `meldom:meldom-reviewer` and
-`meldom:meldom-worker`. The doubled word is correct: the folder is `agents/meldom-reviewer.md` and the plugin
-namespace is `meldom:`.
+A ported file is upstream's file, word for word and punctuation included, with only the changes these rules
+and its ledger section name. Porting an upstream change means taking upstream's new text.
 
-### 2. Punctuation and formatting
+Meldom's own additions live in one place: a `## On Meldom` section at the **bottom** of the skill's `SKILL.md`.
+Everything above it, and every other file in the skill, is upstream's text with only the global rules and the
+replacements its ledger section names. A replacement is allowed only where upstream's text names a mechanism
+Meldom replaces (another tracker, `.scratch/`, `.out-of-scope/`) or contradicts it. Where an addition and
+upstream disagree, upstream wins and the addition goes.
 
-**Never rewrite punctuation.** Upstream removed em-dashes as a house style; we did not follow, and we are not
-going to sweep our prose to match. Two cases, and neither involves editing a sentence for punctuation:
-
-- A file we take **wholesale from upstream** keeps upstream's text exactly as upstream wrote it, punctuation
-  included. That is not us changing the style, it is simply the file we copied.
-- A file we have **rewritten for Meldom** (`triage`, `wayfinder`, `implement`, `implement-spec`, and everything
-  under Meldom-only) keeps its own writing, em-dashes and all. Porting an upstream change into
-  it means porting the *content* of that change, in our voice, not retyping our paragraphs in upstream's.
-
-There is no mechanical way to hide the resulting noise, and the sync should not pretend otherwise: mapping the
-dashes to `-` on both sides removes zero diff lines, because upstream swapped each one for a colon and reflowed
-the clause. The fidelity check above says how to read the diff instead.
-
-Never run a formatter over `skills/` or `agents/`: a prettier pass rewrites quotes and reflows lines, and every
+Never run a formatter over `skills/`: a prettier pass rewrites quotes and reflows lines, and every
 one of those becomes a phantom hunk in the next sync.
 
 ### 3. Invocation
 
-Upstream's own convention is [`.agents/invocation.md`](https://github.com/mattpocock/skills/blob/main/.agents/invocation.md). A user-invoked skill sets
-`disable-model-invocation: true` in `SKILL.md` **and** `policy.allow_implicit_invocation: false` in
-`agents/openai.yaml`; a model-invoked skill sets neither. The two must always agree, and `scripts/validate.mjs`
-enforces it.
-
-Meldom runs AFK agents that must be able to reach a skill without a human typing its name. So these upstream
-**user-invoked** skills are **model-invoked** here, each with a model-facing description carrying trigger
-phrasing:
-
-`implement`, `to-spec`, `to-tickets`, `triage`, `wayfinder`, `improve-codebase-architecture`, `grill-with-docs`,
-`handoff`, `ask-meldom`.
-
-These stay **user-invoked**, because firing them without being asked is the failure mode:
-
-`grill-me`, `implement-spec`, `loop-me`, `retro`, `teach`, `to-questionnaire`, `wait-what`.
+Upstream's convention is [`.agents/invocation.md`](https://github.com/mattpocock/skills/blob/main/.agents/invocation.md), and every port follows upstream's flag. A
+user-invoked skill sets `disable-model-invocation: true` in `SKILL.md` **and**
+`policy.allow_implicit_invocation: false` in `agents/openai.yaml`; a model-invoked skill sets neither. The two
+must always agree, and `scripts/validate.mjs` enforces it.
 
 ### 4. Meldom is the tracker
 
-Every skill that touches a tracker uses `mcp__meldom__*` tools and nothing else. No `gh issue`, no
-`docs/agents/issue-tracker.md`, no `.scratch/` directory, no GitHub or GitLab templates, no "run
-`/setup-matt-pocock-skills` first" precondition. The MCP server announces the connection on its own, so there is
-nothing to configure.
+The issue tracker is Meldom. `meldom:setup-matt-pocock-skills` records it in `docs/agents/issue-tracker.md` from
+its `issue-tracker-meldom.md` template, which maps every tracker operation to an `mcp__meldom__*` tool. So
+upstream's "The issue tracker should have been provided to you" lines and its generic "publish to the issue
+tracker" wording stay as upstream wrote them.
+
+A ported skill changes only where upstream names a tracker other than Meldom, or a mechanism Meldom replaces:
+
+| Upstream                                         | Meldom                                                                            |
+| ------------------------------------------------ | --------------------------------------------------------------------------------- |
+| GitHub, GitLab or local-markdown tracker steps   | the Meldom operation, from the tracker doc or as an `mcp__meldom__*` call         |
+| issue numbers (`#42`) for a tracker issue        | `KEY-42` (rule 5)                                                                 |
+| the `.out-of-scope/` directory                   | Meldom notes labelled `out-of-scope`                                              |
+| commit your work                                 | the Skill tool with `meldom:ship`                                                 |
+| a worktree per subagent, cleaning them up        | the worktrees `mcp__meldom__worktree_list` reports for this chat, `mcp__meldom__worktree_remove` |
+
+No `gh issue`, no `.scratch/` directory, no `.out-of-scope/` directory.
 
 ### 5. Ticket keys in prose
 
@@ -114,9 +95,9 @@ maintainer-specific rule file names, no harness-specific tool names presented as
 ### 7. Every wait and every read has an end
 
 A wait names one blocking command (`gh pr checks --watch --fail-fast --required`) or one shell loop with an
-interval and a ceiling ("every 30 seconds for up to 30 minutes"), never an open-ended "poll until". A skill that
-reads a spec asks `ticket_view` for `response_format: "detailed"` and pages the body by `next_body_cursor`, so a
-long spec is never read trimmed. `merge-worktree` and `implement` are the models.
+interval and a ceiling ("every 30 seconds for up to 30 minutes"), never an open-ended "poll until". A ticket
+read asks `ticket_view` for `response_format: "detailed"` and pages the body by `next_body_cursor`, so a long
+spec is never read trimmed.
 
 ## Mapping
 
@@ -129,20 +110,19 @@ long spec is never read trimmed. `merge-worktree` and `implement` are the models
 | `engineering/domain-modeling`               | `domain-modeling`               | yes     |
 | `engineering/grill-with-docs`               | `grill-with-docs`               | yes     |
 | `engineering/implement`                     | `implement`                     | yes     |
+| `engineering/implement-spec`                | `implement-spec`                | yes     |
 | `engineering/improve-codebase-architecture` | `improve-codebase-architecture` | yes     |
+| `engineering/pr`                            | `pr`                            | yes     |
 | `engineering/prototype`                     | `prototype`                     | yes     |
 | `engineering/research`                      | `research`                      | yes     |
-| `engineering/resolving-merge-conflicts`     | `resolving-merge-conflicts`     | yes     |
+| `engineering/retro`                         | `retro`                         | yes     |
+| `engineering/setup-matt-pocock-skills`      | `setup-matt-pocock-skills`      | yes     |
 | `engineering/tdd`                           | `tdd`                           | yes     |
 | `engineering/to-spec`                       | `to-spec`                       | yes     |
 | `engineering/to-tickets`                    | `to-tickets`                    | yes     |
 | `engineering/triage`                        | `triage`                        | yes     |
 | `engineering/wayfinder`                     | `wayfinder`                     | yes     |
 | `engineering/wizard`                        | `wizard`                        | yes     |
-| `in-progress/implement-spec`                | `implement-spec`                | yes     |
-| `in-progress/loop-me`                       | `loop-me`                       | yes     |
-| `in-progress/pr`                            | `pr`                            | yes     |
-| `in-progress/retro`                         | `retro`                         | yes     |
 | `productivity/grill-me`                     | `grill-me`                      | yes     |
 | `productivity/grilling`                     | `grilling`                      | yes     |
 | `productivity/handoff`                      | `handoff`                       | yes     |
@@ -152,284 +132,175 @@ long spec is never read trimmed. `merge-worktree` and `implement` are the models
 | `productivity/writing-for-agents`           | `writing-for-agents`            | yes     |
 
 **Meldom-only, no upstream source.** The sync never diffs these and never rewrites them:
-`bulletproof`, `explore-approaches`, `merge-worktree`, `security-audit`, `ship`, `agents/meldom-worker.md`, and
-`agents/meldom-reviewer.md` (except its Smell Baseline section, below).
+`merge-worktree`, `security-audit` and `ship`.
 
 ## Per-skill divergences
 
 ### ask-meldom (`engineering/ask-matt`)
 
-- **Renamed** `ask-matt` to `ask-meldom`; the frontmatter `name` and the folder follow.
-- **Model-invoked** (global rule 3) with a model-facing description, so an agent that is unsure which skill fits
-  loads the map on its own instead of waiting to be asked.
-- Router entries name skills as `meldom:<name>` rather than `/<name>`, so the name copies straight into a Skill
-  tool call on either provider.
-- The map covers **every skill folder in this plugin**, so the Meldom-only skills (`ship`, `merge-worktree`, `bulletproof`,
-  `explore-approaches`) are added to the groups they belong to. So are the upstream `in-progress/` skills we ship
-  (`implement-spec`, `loop-me`, `retro`, `pr`), which upstream's router leaves out; `pr` sits in the landing step.
-- Upstream's `## Precondition` section pointed at `/setup-matt-pocock-skills`. Replaced: Meldom is the tracker
-  and needs no setup, and domain docs (`CONTEXT.md`, ADRs) are read when present and created lazily by
-  `meldom:domain-modeling`.
-- `PHASE-BOUNDARIES.md` tracks upstream unchanged.
+- **Renamed** `ask-matt` to `ask-meldom`: the frontmatter `name`, the `# Ask Meldom` heading, the
+  `display_name` and the folder.
+- Replacement: step 3's local-tracker sentence becomes the Meldom board's native blocking links, and the
+  Precondition drops "Custom issue trackers also work": the tracker is Meldom.
+- `## On Meldom`: the Meldom-only skills (`meldom:ship`, `meldom:merge-worktree`, `meldom:security-audit`), each
+  with where it sits in the map, so the map names every
+  skill folder in this plugin.
+- `PHASE-BOUNDARIES.md` differs only by global rule 1.
 
 ### code-review (`engineering/code-review`)
 
-- The Spec axis finds its spec in Meldom instead of `docs/agents/issue-tracker.md`, in this order: a ticket key
-  or ULID passed as an argument, the tickets this conversation tracks
-  (`mcp__meldom__conversation_status`), a `[A-Z]+-[0-9]+` key in the branch name, a spec path passed as an
-  argument, then ask. The ticket is read with `mcp__meldom__ticket_view`, including its `attachments[]` and
-  `notes[]`.
-- Standards sources are `CLAUDE.md`, `AGENTS.md`, `CONTRIBUTING.md`, or a standards file the repo documents. No
+- Replacement: spec source 1 is Meldom ticket keys (`KEY-123`) in the commit messages, and spec source 3 drops
   `.scratch/`.
-- After aggregating, confirmed Spec findings are posted as one `mcp__meldom__comment_create` comment on the
-  ticket, when a ticket was found, so the review is visible on the board.
-- The review covers the working tree, not only commits. It diffs against the merge-base
-  (`git diff $(git merge-base <fp> HEAD)`: commits since it plus staged and unstaged changes) and reviews each
-  untracked file (`git ls-files --others --exclude-standard`) whole. With no fixed point on a dirty tree, the
-  fixed point is `HEAD`. That is what lets `implement` review its work before anything is committed.
-- The Smell Baseline stays inline **and** is mirrored into `agents/meldom-reviewer.md`, which `bulletproof`
-  spawns. That section carries an HTML comment naming this skill as its upstream source; a smell-baseline
-  change ports into both places.
+- `## On Meldom`: uncommitted work is in scope (on a dirty tree, `git diff $(git merge-base <fp> HEAD)` plus
+  every untracked file, and `HEAD` as the default fixed point), because `meldom:implement` reviews before it
+  commits; a ticket key argument, the conversation's tickets and a key in the branch name are checked first as
+  spec sources; `CLAUDE.md` and `AGENTS.md` count as standards; and the Spec findings are posted to the ticket
+  with `mcp__meldom__comment_create`.
 
 ### codebase-design (`engineering/codebase-design`)
 
-No divergence beyond the global namespacing rule. Wording differs where upstream rewrote it (global rule 2).
+- `## On Meldom`: with no subagents (Codex), the `DESIGN-IT-TWICE.md` work runs in the current session, one
+  approach at a time.
 
 ### diagnosing-bugs (`engineering/diagnosing-bugs`)
 
-- Upstream Phase 4 is kept verbatim. The former "Meldom: flip the debug flag" section is **removed**: it
-  documented the Meldom desktop app's own logging layer, linked into that repo (`../../../docs/logging.md`) and
-  named a runtime path (`~/.meldom/logs/`) that means nothing on a user's machine.
-- One Meldom addition in Phase 4: when the app under test runs as a Meldom command, read its output with
-  `mcp__meldom__command_output` instead of asking the user to paste logs.
-- Phase 6 files a worth-tracking bug with `mcp__meldom__ticket_create` instead of the upstream tracker.
+- `## On Meldom`: an app running as a Meldom command has its output read with `mcp__meldom__command_output`
+  instead of pasted logs, and a bug worth tracking is filed with `mcp__meldom__ticket_create`.
 
 ### domain-modeling (`engineering/domain-modeling`)
 
-No divergence beyond the global namespacing rule. Wording differs where upstream rewrote it (global rule 2).
+No divergence.
 
 ### grill-me (`productivity/grill-me`)
 
-- Its `Call the Skill tool` target is `meldom:grilling` (global rule 1). A bare `grilling` does not resolve for
-  someone who installed only this plugin.
+Global rule 1 only.
 
 ### grill-with-docs (`engineering/grill-with-docs`)
 
-- **Model-invoked** (global rule 3), with a model-facing description.
-- Calls `meldom:grilling` and `meldom:domain-modeling`.
+Global rule 1 only.
 
 ### grilling (`productivity/grilling`)
 
-- Adds a closing paragraph: end with a one-bullet-per-decision recap, produce no tickets and no files beyond the
-  domain model, and leave the recap in the conversation ready for `meldom:to-spec` or `meldom:to-tickets`. Upstream stops at "do not
-  act on it until the user confirms"; on Meldom the next step is always ticket creation, and without this the
-  skill invented tickets of its own.
+- `## On Meldom`: end with a one-bullet-per-decision recap and produce no tickets and no files beyond the domain
+  model, ready for `meldom:to-spec` or `meldom:to-tickets`. Without it the skill invented tickets of its own.
 
 ### handoff (`productivity/handoff`)
 
-- **Model-invoked** (global rule 3): a long session hits a phase boundary without the user thinking to ask.
-- Still writes the Markdown file to the OS temporary directory, and **additionally** stores it as a Meldom note
-  (`mcp__meldom__note_create`, label `handoff`, `ticket_ids` = the conversation's tracked tickets when there are
-  any). A file in `/tmp` does not survive the machine; the note does.
+- `## On Meldom`: the document is also stored as a Meldom note (`mcp__meldom__note_create`, label `handoff`),
+  attached to the conversation's tracked tickets. A file in the OS temporary directory does not survive the
+  machine; the note does.
 
 ### implement (`engineering/implement`)
 
-- **Model-invoked** (global rule 3).
-- Rewritten against Meldom throughout: the spec is a parent ticket read with `mcp__meldom__ticket_view` in its
-  `detailed` form, paging the body and relations so nothing is trimmed, the claim is `mcp__meldom__ticket_batch_update` to `in_progress`, per-ticket completion is `ticket_update` to
-  `done` with a reason, the review outcome is `mcp__meldom__ticket_outcome`, and the parent is closed explicitly
-  because Meldom never rolls parent status up from children.
-- Hands off to `meldom:implement-spec` for the parallel, one-PR path, and says that skill is user-invoked so it
-  cannot be reached with the Skill tool.
-- Scope is fixed at the read. Work the build surfaces past it is a follow-up, filed at once with
-  `mcp__meldom__ticket_create` inside the family of the ticket being built: under the spec, or under the
-  ticket's own parent, and a root ticket with no parent is first given a spec (`ticket_create` with
-  `type: "spec"`, then `ticket_update` with `parent_id`) so the follow-up lands beside it. `parent_id` is always
-  passed explicitly; a follow-up is never a board root.
-- Everything this session creates is built in this session. The scope is the set handed at step 1 plus every
-  ticket the session creates, whatever its type, cause or age — a "pre-existing" bug filed mid-build is in
-  scope, not a category that may be left. Step 5 reads `conversation_status` and loops back to step 1 while
-  any created ticket is open, until a pass creates nothing new. Completion is every ticket in the scope `done`
-  or `closed`, the parent closed through the every-child-done rule, and a final message that says the work is
-  implemented and reviewed — never a list of open tickets or next steps. The one exception is a step only a
-  human can take, handed over through `meldom:wizard` or a question.
-- Handing over the work confirms its seams, so the build runs without `meldom:tdd`'s seam question.
-- Checks are split into the seam and the **gate**. While building, only the tests covering what was just touched
-  run. `meldom:code-review` runs after the last ticket in the scope, and a ticket it fails is built again from
-  step 1. The gate — every whole-project check (full suite, lint, format, typecheck, build) —
-  runs last, once nothing is open, so it covers the review's fixes too. Upstream runs typechecking "regularly"
-  and reviews after the full suite; here typecheck waits for the gate, because it is project-wide in most
-  stacks, and the gate comes after the review.
-- Reports progress through `mcp__meldom__progress`, which upstream has no equivalent of: one `plan` call after
-  the first pass's claim with exactly one step per ticket, never again on a later pass, `add` for each follow-up
-  filed and each ticket review reopens, `done` with each ticket's move to `done`, and `finish` with the run's last
-  tool call. When the tool is not there after one search, every progress call is skipped silently.
-- Does not commit: Meldom works on `main` and committing is the user's or `meldom:ship`'s job.
+- `## On Meldom`: commit through `meldom:ship`; claim tickets as `in_progress`; report to the progress bar; mark
+  each ticket `done` as it passes; build every follow-up the session files, under the ticket's parent; record
+  the review's outcome per ticket; and close the parent once every child is done. Meldom never rolls parent
+  status up, and without the follow-up rule the build left tickets it had filed open.
 
-### implement-spec (`in-progress/implement-spec`)
+### implement-spec (`engineering/implement-spec`)
 
-- The spec is a Meldom parent ticket of `type: "spec"`; its children are the slices. It is read with
-  `mcp__meldom__ticket_view` in its `detailed` form, paging the body and relations so nothing is trimmed. Ticket state is owned by this
-  session through `mcp__meldom__*`; subagents never call Meldom, so they are handed the ticket **body**, not an
-  id.
-- Implementer subagents are `Agent(subagent_type: "meldom:meldom-worker")`, with an explicit fallback for
-  providers that have no subagents at all.
-- **Concurrency is looked up, not asked.** Before choosing one-at-a-time versus parallel, call
-  `mcp__meldom__worktree_list`: worktrees that already exist and belong to this chat are the only source of
-  parallelism. Never run `git worktree add`; worktree creation is user-driven.
-- Committing from a Meldom chat goes through `meldom:ship`, not raw `git commit`.
-- Step 7 runs the **gate** once after `meldom:code-review` and its fixes: every whole-project check the repo
-  defines, each as its own command. Upstream names only the review there.
-- The orchestrator reports progress through `mcp__meldom__progress`, which upstream has no equivalent of: one
-  `plan` call in step 3 with exactly one step per slice, `done` with each slice's move to `done`, and `finish`
-  with the closing `conversation_update`. When the tool is not there after one search, every progress call is
-  skipped silently.
+- `## On Meldom`: worktrees are the ones `mcp__meldom__worktree_list` reports for this chat, never
+  `git worktree add`, and are removed with `mcp__meldom__worktree_remove`; the orchestrator owns every ticket
+  state and hands subagents the ticket body; an in-session fallback for providers without subagents; commits go through `meldom:ship` with only the ticket's paths; progress-bar
+  reporting; and the review's outcome per ticket.
 
 ### improve-codebase-architecture (`engineering/improve-codebase-architecture`)
 
-- **Model-invoked** (global rule 3).
-- Refactor steps are filed as Meldom tickets (`mcp__meldom__ticket_create`, and a parent plus children for a
-  multi-step refactor) instead of the upstream tracker.
-- Upstream deleted `DEEPENING.md`, `INTERFACE-DESIGN.md` and `LANGUAGE.md` from this skill; the local copies are
-  deleted too. `DEEPENING.md` lives on in `codebase-design`, where upstream keeps it.
+Global rule 1, plus `## On Meldom`: the approved refactor is filed as Meldom tickets, a parent plus children for a
+multi-step refactor.
 
-### loop-me (`in-progress/loop-me`)
+### pr (`engineering/pr`)
 
-No divergence beyond the global namespacing rule: the stateful session it runs is `meldom:grilling`. Wording differs where upstream rewrote it (global rule 2).
-
-### pr (`in-progress/pr`)
-
-No divergence: every file, `CREDITS.md` included, is upstream's text as upstream wrote it.
+No divergence: every file, `CREDITS.md` included, is upstream's text.
 
 ### prototype (`engineering/prototype`)
 
-- Global namespacing rule only. Note the trap it fixes: the throwaway route is named `prototype`, a **file
-  name**, so it is never prefixed.
+No divergence.
 
 ### research (`engineering/research`)
 
-- Still writes the cited Markdown file where the repo keeps such notes, and **additionally** stores the findings
-  as a Meldom note (`mcp__meldom__note_create`, label `research`) attached to the ticket it was asked from, so a
-  later session finds the research from the board instead of from a path it has to guess.
+- `## On Meldom`: the findings are also stored as a Meldom note (`mcp__meldom__note_create`, label `research`),
+  attached to the ticket the question came from, so a later session finds them from the board.
 
-### resolving-merge-conflicts (`engineering/resolving-merge-conflicts`)
+### retro (`engineering/retro`)
 
-No recorded divergence. Wording differs from upstream where upstream rewrote it (global rule 2).
+Global rule 1, plus `## On Meldom`: where Claude Code and Codex keep session logs, and accepted candidates can be
+filed as Meldom tickets.
 
-### retro (`in-progress/retro`)
+### setup-matt-pocock-skills (`engineering/setup-matt-pocock-skills`)
 
-- Improvement candidates the user accepts are filed as meldom tickets (`mcp__meldom__ticket_create`) so they
-  land in the same backlog as everything else.
-- Step 2 says where session logs live **per harness** (Claude Code `~/.claude/projects/<slug>/*.jsonl`, Codex
-  `~/.codex/sessions/`, otherwise ask). Upstream says only "session logs on this machine".
-- The coding-standards candidate names the plugin's own reviewer agent, `meldom:meldom-reviewer`, and its Smell
-  Baseline, because that is where a new rule would actually go here.
-
-### security-audit (no upstream source)
-
-Copied from the local Claude `security-audit` skill. `SKILL.md` is unchanged. The plugin adds
-`agents/openai.yaml` for Codex display metadata; invocation remains model-invoked.
+- The issue tracker is Meldom, so Section A proposes it with nothing else to choose, and the exploration drops
+  the `git remote` and `.scratch/` checks.
+- The GitHub, GitLab and local-markdown templates are replaced by `issue-tracker-meldom.md`. It keeps the GitHub
+  template's shape: conventions, the PRs-as-a-request-surface flag (with the `gh pr` commands, since PRs still
+  live on GitHub), the "publish" and "fetch" sections, a "resolve a ticket" section `implement-spec` relies on,
+  and the wayfinding operations, each as an `mcp__meldom__*` call.
 
 ### tdd (`engineering/tdd`)
 
-- Adds one rule of the loop: the loop runs the seam's tests, and whole-project checks run once, after the last
-  slice of the whole build. `meldom:implement` drives this skill once per ticket, so without it each ticket ran
-  the full suite and lint on its own.
-- Wording differs where upstream rewrote it (global rule 2).
+Global rule 1, plus `## On Meldom`: the loop runs the seam's tests, and whole-project checks run once, after the
+last slice. `meldom:implement` drives this skill once per ticket, so without it each ticket ran the full suite.
 
 ### teach (`productivity/teach`)
 
-No recorded divergence. Wording differs from upstream where upstream rewrote it (global rule 2).
+No divergence.
 
 ### to-questionnaire (`productivity/to-questionnaire`)
 
-No recorded divergence. Wording differs from upstream where upstream rewrote it (global rule 2).
+No divergence.
 
 ### to-spec (`engineering/to-spec`)
 
-- **Model-invoked** (global rule 3), with a model-facing description.
-- The spec is published as a Meldom spec: `mcp__meldom__ticket_create` with `type: "spec"` and an explicit
-  `parent_id: null`, because omitting it would file the spec under the chat's home spec. No `ready-for-agent`
-  label: Meldom has no triage label vocabulary to apply.
-- The `/setup-matt-pocock-skills` precondition line is dropped (global rule 4).
+Global rule 1 only. The spec ticket's `type` and `parent_id` come from the tracker doc.
 
 ### to-tickets (`engineering/to-tickets`)
 
-- **Model-invoked** (global rule 3), with a model-facing description.
-- A ticket passed as the reference is read with `mcp__meldom__ticket_view` in its `detailed` form, paging the body
-  and relations so nothing is trimmed, including its `attachments[]` and `notes[]`.
-- Step 5 publishes to Meldom only: one `mcp__meldom__ticket_batch_create` transaction, blocking edges as native
-  `blocked_by_index` links. Upstream's local-files branch (`.scratch/`, the per-file ticket template) and the
-  `ready-for-agent` label are dropped; the `/setup-matt-pocock-skills` precondition line too (global rule 4).
-- Every slice carries `parent_id`: the spec when there is one, otherwise a plain parent created first, so the
-  slices share one family on the board (ADR 0002 shows roots only). A lone slice publishes as one ticket and
-  stops.
+- Replacement: step 5's local-files branch and its template are dropped, so the closing "In either form" is
+  "Avoid".
+- `## On Meldom`: with no source issue, a plain parent is created first so the tickets share one family on the
+  board; a lone ticket needs none.
 
 ### triage (`engineering/triage`)
 
-- **Model-invoked** (global rule 3).
-- The ticket is read with `mcp__meldom__ticket_view` in its `detailed` form, paging the body and relations so
-  nothing is trimmed.
-- Roles map onto **Meldom ticket fields** (`status`, `assignee`, labels) instead of the label vocabulary
-  `setup-matt-pocock-skills` used to write into a config file. There is no label file to read.
-- `OUT-OF-SCOPE.md`: the rejected-request knowledge base is Meldom **notes** labelled `out-of-scope`, one per
-  concept, attached to the tickets they cover, instead of files under `.out-of-scope/`.
-- `AGENT-BRIEF.md`: the brief is written into the ticket **body** with `ticket_update`, so upstream's
-  "post a structured comment" framing and its `## Agent Brief` heading are dropped. Its examples are rewritten
-  against a Meldom ticket field so they read as this tracker's work.
-- **External PRs are not a triage surface.** Upstream triages an external pull request as "an issue with
-  attached code". A Meldom ticket has no attached diff, so the PR deltas, the PR discovery filter and the PR
-  agent-brief example are all dropped. A PR is reviewed with `meldom:code-review`, not triaged.
-- Ticket keys in prose are `KEY-N` (global rule 5).
+- Replacement: the rejected-request knowledge base is Meldom **notes** labelled `out-of-scope`, one per concept,
+  attached to the issues that asked for it, instead of files under `.out-of-scope/`. `OUT-OF-SCOPE.md` is
+  rewritten for notes, and `SKILL.md`'s mentions of the directory follow.
+- Replacement: `AGENT-BRIEF.md` posts the brief on a Meldom ticket or a PR, its `gh issue list` example is a
+  `ticket_list` one, and its enhancement example's hypothetical feature stores its records in `docs/rejected/`.
 
 ### wait-what (`productivity/wait-what`)
 
-No recorded divergence. Wording differs from upstream where upstream rewrote it (global rule 2).
+No divergence.
 
 ### wayfinder (`engineering/wayfinder`)
 
-- **Model-invoked** (global rule 3).
-- Meldom **is** the tracker. The map is a parent ticket labelled `wayfinder:map` with `assignee: "human"`; its
-  decisions are child tickets with `parent_id` set to the map; blocking is native `blocked_by`; the frontier is
-  `ticket_list({ parent_id, unblocked: true })`; a resolution is a `comment_create` plus `ticket_update` to
-  `done`.
-- `wayfinder:<type>` labels are the plain strings `research`, `prototype`, `grilling`, `task` (global rule 1).
-  They are label values, so they are never namespaced, even though three of them share a name with a skill.
-- The Skill tool calls inside the type descriptions **are** namespaced: `meldom:research`,
-  `meldom:prototype`, `meldom:grilling`, `meldom:domain-modeling`.
-- A research subagent captures its findings as a **Meldom note** attached to the ticket, instead of upstream's
-  throwaway `research/<name>` branch with a context pointer from the issue.
-- Ticket keys in prose are `KEY-N` (global rule 5).
+- With no tracker provided, it defaults to Meldom instead of the local-markdown tracker.
 
 ### wizard (`engineering/wizard`)
 
-- `template.sh` is generated by `meldom:wizard`, so its header comment names the namespaced skill.
-- `template.sh` waits for Enter before each `stage` after the first and before `finish` clear the screen, so a
-  stage's `✓ wrote` / `✓ set` lines are read before they vanish; upstream clears straight away, which made the
-  skill's "confirms at every stage" untrue. Its summary also lists the GitHub variables `set_var` wrote, which
-  upstream's leaves out.
+Global rule 1 only: `template.sh`'s header names `/meldom:wizard`.
 
 ### writing-for-agents (`productivity/writing-for-agents`)
 
-No recorded divergence. Wording differs from upstream where upstream rewrote it (global rule 2).
+No divergence.
 
 ## Tombstones
 
-Upstream skills this plugin deliberately does not ship. `localMapping` maps each to `null`.
+Upstream skills this plugin deliberately does not ship. `localMapping` maps each to `null`. Upstream keeps all of
+them out of its own plugin too.
 
-| Upstream skill               | Why not                                                                                                            | Watch |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------ | ----- |
-| `setup-matt-pocock-skills`   | Writes GitHub / GitLab / `.scratch` tracker config that no Meldom skill reads, and triage labels Meldom never opens. Its domain-docs paragraph moved into `ask-meldom`'s precondition; the tracker connection is announced by the MCP server. | **yes** |
-| `claude-handoff`             | Claude Code specific; `handoff` covers it harness-neutrally.                                                        | no    |
-| `setup-ts-deep-modules`      | TypeScript project scaffolding, not a Meldom workflow.                                                              | no    |
-| `writing-beats`              | Prose-writing skill, off this plugin's subject.                                                                     | no    |
-| `writing-fragments`          | Prose-writing skill, off this plugin's subject.                                                                     | no    |
-| `writing-shape`              | Prose-writing skill, off this plugin's subject.                                                                     | no    |
-| `git-guardrails-claude-code` | Claude Code specific, and Meldom's own git rules live in `meldom:ship` and `meldom:merge-worktree`.                  | no    |
-| `migrate-to-shoehorn`        | One library's migration, not a Meldom workflow.                                                                     | no    |
-| `scaffold-exercises`         | Teaching-material scaffolding, off this plugin's subject.                                                           | no    |
-| `setup-pre-commit`           | Repo scaffolding, not a Meldom workflow.                                                                            | no    |
+| Upstream skill               | Why not                                                                         |
+| ---------------------------- | ------------------------------------------------------------------------------- |
+| `chief-of-staff`             | `in-progress/`: beta, and upstream says it can change or disappear without warning. |
+| `claude-handoff`             | `in-progress/`: beta.                                                           |
+| `loop-me`                    | `in-progress/`: beta.                                                           |
+| `setup-ts-deep-modules`      | `in-progress/`: beta.                                                           |
+| `writing-beats`              | `in-progress/`: beta.                                                           |
+| `writing-fragments`          | `in-progress/`: beta.                                                           |
+| `writing-shape`              | `in-progress/`: beta.                                                           |
+| `git-guardrails-claude-code` | `misc/`: frozen upstream, so it gets no fixes.                                  |
+| `migrate-to-shoehorn`        | `misc/`: frozen upstream, so it gets no fixes.                                  |
+| `scaffold-exercises`         | `misc/`: frozen upstream, so it gets no fixes.                                  |
+| `setup-pre-commit`           | `misc/`: frozen upstream, so it gets no fixes.                                  |
 
-**Watched** means the sync still diffs it every run and asks one question: does this change add a config section
-that a skill we *do* ship now reads? A yes is ported or consciously dropped; silence is the failure mode this
-column exists to prevent. Everything else is skipped without a diff.
+When upstream promotes one into `engineering/` or `productivity/`, the next sync ports it.

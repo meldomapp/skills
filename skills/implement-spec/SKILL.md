@@ -1,49 +1,49 @@
 ---
 name: implement-spec
-description: "Implement a meldom spec across all its tickets in parallel, landing one PR."
+description: "Implement the result of /meldom:to-spec and /meldom:to-tickets in code."
 disable-model-invocation: true
 ---
 
-You have been provided a **spec** — a meldom parent ticket of `type: "spec"`, holding the spec in its body. Its child tickets are the vertical slices that implement it, the ones `meldom:to-tickets` published.
+You have been provided a spec. This spec should have tickets associated with it, describing how to implement the spec.
 
-The goal is a PR which implements the whole spec on a single branch.
+The issue tracker should have been provided to you. If not, tell the user to run `/meldom:setup-matt-pocock-skills`.
+
+The goal is the entire spec implemented on a single **integration branch**, with every ticket resolved the way the issue tracker closes work.
 
 The tickets are not a list of steps. They are a **task graph** with blocking relationships between them. This means there is always a **frontier** of tickets which are ready to be grabbed.
 
-Communication to and from subagents should be sparse. Communicate primarily through **context pointers**: to the spec, its tickets, attached notes, and previous commits. Don't duplicate information already available via pointers.
+Communication to and from subagents should be sparse. Communicate primarily through **context pointers**: to the spec, tickets, research notes, and previous commits. Don't duplicate information already available via pointers.
 
-This is the heavy path — many subagents, a branch, a PR, then a full review pass. It costs several times what `meldom:implement` costs for the same tickets. Reach for it only when you want the whole spec landed as one reviewable PR without babysitting it; otherwise use `meldom:implement`.
-
-## Rules
-
-- **ONLY `mcp__meldom__*` tools** for ticket data. You own every ticket state transition; subagents never call meldom. `ticket_batch_update` keys its `entries` by ticket **ULID**, not the `KEY-3` form that `ticket_list` prints.
-- **Never run `git worktree add`.** Worktree creation is user-driven.
-- **Concurrency follows isolation, and nothing else.** Two subagents writing one checkout cannot be committed apart — when one finishes, the other's half-written files are sitting in the same tree.
-  - **Look it up, don't ask.** Call `mcp__meldom__worktree_list` before you choose — it reports the worktrees that exist and which chat each belongs to, so the answer is already on the board. Asking the user spends a turn on a fact you can read. It pages at 5 rows: when it returns a `next_cursor`, pass it back as `offset` until it stops, because a worktree of yours sitting on page 2 reads as no worktree at all.
-  - **Worktrees this chat already owns** → one implementer per worktree, run in the background for real concurrency.
-  - **No worktrees (the default)** → **one implementer at a time.** Let it finish, commit it, then start the next. Slower, but every commit is exactly one ticket. A worktree belonging to another chat is not yours — it adds no concurrency.
-- **Commit only the paths that ticket touched** (`git add <paths>`), never `git add -A` or `git commit -a`. Guards attribution even when something unexpected is dirty.
-- **Committing from a Meldom chat goes through the ship card**: call the Skill tool with `meldom:ship` for each commit rather than raw `git commit`. Only commit with raw git when you are not in a Meldom chat.
-- Subagents never commit and never push. You own the branch.
+**Implementer subagents** should be run in the background where possible for maximum concurrency.
 
 ## Steps
 
-1. Read the spec and its tickets — `mcp__meldom__ticket_view({ "id": <spec-id>, "response_format": "detailed" })` for the spec body, then its children with their `blocked_by` edges. The default `concise` trims the body and caps each relation at 10 rows, which would silently cut the spec and its children: while the result carries `next_body_cursor`, call again with `body_offset: <next_body_cursor>`, and page `children` / `attachments` / `notes` with `relation` + `relation_offset` when they report a `next_cursor`. Read enough to understand the task graph. Read attached `notes[]` and `attachments[]`; an attachment's local `path` is Readable.
+1. Read the spec and tickets to understand the task graph.
 
 2. (optional) Use an **exploration subagent** to conduct any exploration required by the tickets - relevant codebase files or external documentation. Ensure the exploration subagent can save files - it should save its markdown notes in a directory outside the repo, accessible by all future subagents. This lets **implementer subagents** focus on implementation rather than exploration.
 
-3. Decide the concurrency — `mcp__meldom__worktree_list`, then the Rules above — and say in one line which mode you are in and why, before spawning anything. Then create the branch. Hold the draft PR until after the first commit — `gh pr create` fails on a branch with no commits between it and base.
+3. Create the integration branch. If the issue tracker closes work through PRs, or the user asks for one, open a draft PR after the first merge in step 5 (a branch with no commits ahead of main can't open one), marked as closing the spec and tickets.
 
-   Then report the plan once, exactly one step per slice in the order you expect to land them and nothing else, each sized `S`, `M` or `L`: `mcp__meldom__progress({ "goal": "<spec title>", "plan": ["<slice title>:M", "<slice title>:S"] })`. The plan is the slices: review, the gate and the rest of the run get no step of their own. The progress calls are yours; subagents never make them. If `mcp__meldom__progress` is not loaded, search your tools for it once; when that finds nothing, skip every progress call in this skill silently and carry on — the ticket moves already tell the board where you are, so there is nothing to retry and nothing to tell the user.
+4. Use **implementer subagents** to implement each ticket, each in its own worktree on its own branch. Each implementer subagent:
+   - confirms its worktree is based on the integration branch before starting, and resets onto it if not;
+   - calls the Skill tool with `meldom:tdd` to build the ticket;
+   - merges the integration branch tip into its own branch before reporting done
 
-4. Work the frontier with **implementer subagents** (`Agent(subagent_type: "meldom:meldom-worker")`), at the concurrency the Rules allow. If the provider has no subagents at all — Codex does not — do this work in the current session instead, following the same brief. Move each ticket to `in_progress` with `mcp__meldom__ticket_batch_update` before spawning, and hand the subagent the ticket body itself — a subagent cannot call meldom, so a ticket id is not a pointer it can follow. Inspect the `{id, success, error?}[]` the batch call returns: it never throws, so an unchecked failure leaves a ticket stranded.
+5. Once an **implementer subagent** completes, merge its work to the integration branch with a **merger subagent**.
 
-5. When a subagent reports success, commit its paths and move the ticket to `done` with a `reason`, sending its progress `{ "done": <its step number> }` in the same message as that move, never on its own. Open the draft PR here if it does not exist yet, pointing at the spec and listing the child ticket keys. If the subagent reports failure, do **not** commit and do **not** mark it done — leave it `in_progress`, record why, and carry it to the final summary. The frontier must never advance onto a broken base.
+6. If this changes the **frontier** of available tickets, kick off more **implementer subagents** to work on the new tickets. This allows for maximum concurrency.
 
-6. Recompute the **frontier** and continue until no ticket is left.
+7. Once all tickets are complete, call the Skill tool with `meldom:code-review` on the integration branch. Fix all issues raised by the code review in a single **implementer subagent**.
 
-7. Once all tickets are complete, call the Skill tool with `meldom:code-review` on the PR branch. Fix all issues raised by the review in a single **implementer subagent**. Record each ticket the review's Spec axis confirms with `mcp__meldom__ticket_outcome({ "id": <ulid>, "outcome": "verified" })`, and any it contradicts as `"failed"`. Then run the **gate** once on the PR branch: every whole-project check the repo defines — the full suite, lint, format, typecheck, build — each as its own command, read by its own exit code. Fix what fails and re-run that check until every one exits clean.
+8. If a draft PR exists, mark it ready for review. Otherwise, resolve each ticket the way the issue tracker closes work, and report the integration branch.
 
-8. Mark the PR as ready for review, and move the spec to `done` once every child is `done` or `closed` — parent status never rolls up on its own. Walk upward too: a closed spec may complete its own parent. Any ticket left `in_progress` from step 5 keeps the spec open; say so in the summary.
+9. Clean up all **implementer subagent** worktrees.
 
-9. Print a summary and set `mcp__meldom__conversation_update({ "summary": "<1-2 sentences on what this run built>" })`, sending progress `{ "finish": true }` in the same message.
+## On Meldom
+
+- **Worktrees are user-driven.** Use the worktrees this chat already owns (`mcp__meldom__worktree_list`) and never run `git worktree add`. With no worktree, run the implementers one at a time in this checkout. Clean worktrees up with `mcp__meldom__worktree_remove`, never a raw `git worktree remove`, which destroys submodule commits.
+- **You own every ticket state.** Implementer subagents never call Meldom, so hand each one the ticket **body**, not its key. Move each ticket to `in_progress` with `mcp__meldom__ticket_batch_update` (keyed by ULID) before spawning its implementer, and check the `{id, success, error?}[]` it returns: it never throws.
+- **No subagents?** If the provider has no subagents at all (Codex does not), do the work in this session instead, following the same brief.
+- **Commits** go through the Skill tool with `meldom:ship`, staging only the paths that ticket touched, never `git add -A`.
+- **Report progress.** Send one plan with exactly one step per ticket, each sized `S`, `M` or `L`: `mcp__meldom__progress({ "goal": "<spec title>", "plan": ["<ticket title>:M"] })`. Send `{ "done": <step> }` with each ticket's move to `done`, and `{ "finish": true }` with the run's last tool call. If the tool is not there after one search, skip every progress call silently.
+- **Record the review.** For each ticket the review's Spec axis confirms, set `mcp__meldom__ticket_outcome({ "id": <ulid>, "outcome": "verified" })`, and `"failed"` for any it contradicts.

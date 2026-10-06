@@ -43,46 +43,44 @@ for it by name.
 
 | Skill                           | What it does                                                                          | Invoked by    |
 | ------------------------------- | ------------------------------------------------------------------------------------- | ------------- |
-| `ask-meldom`                    | The map: which skill or flow fits your situation, and how they connect.               | model-invoked |
-| `to-spec`                       | Turn the conversation into a spec and publish it as a ticket of type `spec`.                     | model-invoked |
-| `to-tickets`                    | Break a plan or spec into vertical-slice tickets with blocking edges.                 | model-invoked |
-| `implement`                     | Build a ticket or spec in the current session, test-first.                            | model-invoked |
-| `implement-spec`                | Land a whole spec as one PR with parallel subagents.                                   | user-invoked  |
-| `triage`                        | Move incoming tickets you did not author through categorise → verify → brief.         | model-invoked |
-| `improve-codebase-architecture` | Find deepening opportunities and propose refactors as tickets.                        | model-invoked |
-| `wayfinder`                     | Plan work too big for one session as a shared map of decision tickets.                | model-invoked |
+| `ask-meldom`                    | The map: which skill or flow fits your situation, and how they connect.               | user-invoked  |
+| `to-spec`                       | Turn the conversation into a spec and publish it as a ticket of type `spec`.          | user-invoked  |
+| `to-tickets`                    | Break a plan or spec into vertical-slice tickets with blocking edges.                 | user-invoked  |
+| `implement`                     | Build a ticket or spec in the current session, test-first.                            | user-invoked  |
+| `implement-spec`                | Implement a whole spec on one integration branch with parallel subagents.             | user-invoked  |
+| `triage`                        | Move incoming tickets you did not author through categorise → verify → brief.         | user-invoked  |
+| `improve-codebase-architecture` | Find deepening opportunities, show them as an HTML report, then grill the one you pick. | user-invoked  |
+| `wayfinder`                     | Plan work too big for one session as a shared map of decision tickets.                | user-invoked  |
 | `prototype`                     | Build a throwaway prototype to settle a design question before committing to it.      | model-invoked |
 | `grilling`                      | Stress-test a plan or decision with a relentless interview.                           | model-invoked |
-| `grill-with-docs`               | Grill a plan against the codebase, capturing terms and decisions as docs.             | model-invoked |
-| `explore-approaches`            | Generate several radically different approaches in parallel, then compare them.       | model-invoked |
+| `grill-with-docs`               | Grill a plan against the codebase, capturing terms and decisions as docs.             | user-invoked  |
 | `code-review`                   | Review changes on two axes: repo coding standards, and the originating ticket.        | model-invoked |
-| `security-audit`                | Audit exploitable security weaknesses and verify security fixes.                     | model-invoked |
-| `bulletproof`                   | Maximum-rigor pipeline: assumption audit, adversarial pass, cross-validation.         | model-invoked |
+| `security-audit`                | Audit exploitable security weaknesses and verify security fixes.                      | model-invoked |
 | `diagnosing-bugs`               | The diagnosis loop for hard bugs and performance regressions.                         | model-invoked |
 | `codebase-design`               | Shared vocabulary for designing deep modules, and where a seam belongs.               | model-invoked |
-| `domain-modeling`               | Build and sharpen a project's domain model; writes CONTEXT.md and ADRs.               | model-invoked |
+| `domain-modeling`               | Build and sharpen a project's domain model; writes GLOSSARY.md and ADRs.              | model-invoked |
 | `tdd`                           | Test-driven development: the red-green-refactor loop.                                 | model-invoked |
-| `resolving-merge-conflicts`     | Resolve an in-progress git merge or rebase conflict.                                  | model-invoked |
 | `writing-for-agents`            | Writing documents for agents: skills, AGENTS.md, CLAUDE.md.                           | model-invoked |
 | `teach`                         | Teach a concept or skill, in this workspace, at the right depth.                      | user-invoked  |
-| `handoff`                       | Compact the conversation into a handoff document, as a file and a meldom note.        | model-invoked |
+| `handoff`                       | Compact the conversation into a handoff document, as a file and a meldom note.        | user-invoked  |
 | `wait-what`                     | Stop — that last message did not land. Re-pitch it.                                   | user-invoked  |
-| `retro`                         | Retrospective on a session that went badly, when the environment is the suspect.      | user-invoked  |
+| `retro`                         | Conduct a retrospective on a coding session.                                          | user-invoked  |
 | `ship`                          | Commit and push from a Meldom chat through the ship review card.                      | model-invoked |
 | `merge-worktree`                | Land a worktree end to end and remove it through `worktree_remove`.                   | model-invoked |
 | `pr`                            | Write a PR body fast to review: a visual, before/after evidence, merge danger.        | model-invoked |
 | `research`                      | Investigate a question against primary sources; capture it as a file and a note.      | model-invoked |
 | `wizard`                        | Generate an interactive bash wizard for steps only a human can perform.               | model-invoked |
-| `loop-me`                       | Grill you about the specs for the workflows you want to build in this workspace.      | user-invoked  |
 | `grill-me`                      | The same relentless interview as `grill-with-docs`, but stateless — no repo needed.   | user-invoked  |
 | `to-questionnaire`              | Turn a decision you cannot answer into a questionnaire for someone else to fill in.   | user-invoked  |
+| `setup-matt-pocock-skills`      | Configure the issue tracker (Meldom), triage labels and domain docs for the skills.   | user-invoked  |
 
 ## Customizing and syncing
 
-Most of these skills are ports of [mattpocock/skills](https://github.com/mattpocock/skills), adapted to drive
-the Meldom board instead of a generic issue tracker. [PORTING.md](PORTING.md) is the ledger: one section per
-ported skill, listing every intentional difference and the reason for it, plus the global rules (namespacing,
-invocation, punctuation) that hold across all of them.
+Most of these skills are ports of [mattpocock/skills](https://github.com/mattpocock/skills): upstream's text,
+with Meldom in place of the trackers upstream names, and Meldom's own additions in one `## On Meldom` section at
+the bottom of each skill.
+[PORTING.md](PORTING.md) is the ledger: one section per ported skill, listing every difference and the reason
+for it, plus the global rules (namespacing, Meldom as the tracker) that hold across all of them.
 
 If you change a ported skill, update its ledger section in the same commit. That is what lets the next upstream
 sync tell a real upstream change from a deliberate local edit, instead of guessing.

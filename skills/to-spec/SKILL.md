@@ -1,9 +1,12 @@
 ---
 name: to-spec
-description: "Turn the current conversation into a spec and publish it as a Meldom ticket of type `spec`: no interview, just synthesis of what you've already discussed. Use when the user wants a spec or spec written, or when a plan needs a parent ticket before meldom:to-tickets slices it."
+description: "Turn the current conversation into a spec and publish it to the project issue tracker: no interview, just synthesis of what you've already discussed."
+disable-model-invocation: true
 ---
 
 This skill takes the current conversation context and codebase understanding and produces a spec. Do NOT interview the user; just synthesize what you already know.
+
+The issue tracker and triage label vocabulary should have been provided to you. If not, tell the user to run `/meldom:setup-matt-pocock-skills`.
 
 ## Process
 
@@ -13,7 +16,7 @@ This skill takes the current conversation context and codebase understanding and
 
 Check with the user that these seams match their expectations.
 
-3. Write the spec using the template below, then publish it as a Meldom ticket of type `spec` with `mcp__meldom__ticket_create({ "title": "...", "body": "<the spec>", "type": "spec", "parent_id": null })`. A spec is a deliberate root, so say `parent_id: null` explicitly; omitting it files the spec under the current chat's home spec, which is right only for a follow-up to that spec. The ticket it returns is the parent `meldom:to-tickets` slices.
+3. Write the spec using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.
 
 <spec-template>
 

@@ -133,39 +133,6 @@ for (const name of skillNames) {
     }
 }
 
-// --- Agents ---------------------------------------------------------------------------------------------
-
-// Every subagent ships with the plugin, so it runs on whatever model the user's harness gives it. A `model:`
-// pin would silently override that with one the maintainer happened to prefer — PORTING.md rule 6 bans it,
-// and nothing else checks. Read from the directory, so a new agent is checked the moment it is added.
-let agentFiles = [];
-try {
-    agentFiles = readdirSync(join(ROOT, 'agents')).filter((entry) => entry.endsWith('.md'));
-} catch {
-    // No agents/ at all is the same as an empty one: fine until a skill spawns an agent, checked below.
-}
-for (const agentFile of agentFiles) {
-    const content = readFileSync(join(ROOT, 'agents', agentFile), 'utf8');
-    const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/.exec(content)?.[1];
-    if (frontmatter === undefined) {
-        fail(`agents/${agentFile}: has no frontmatter block`);
-        continue;
-    }
-    if (!/^name:\s*\S/m.test(frontmatter)) fail(`agents/${agentFile}: has no name`);
-    if (!/^description:\s*\S/m.test(frontmatter)) fail(`agents/${agentFile}: has no description`);
-    if (/^model:\s*\S/m.test(frontmatter)) {
-        fail(`agents/${agentFile}: pins "model:" — an agent must run on whatever model the user's harness provides`);
-    }
-}
-
-// A skill spawns an agent as `meldom:meldom-<name>`, and the provider resolves it to `agents/meldom-<name>.md`.
-// A reference with no file behind it is a subagent call that fails on the user's machine.
-for (const file of allFiles(skillsDir)) {
-    for (const agent of new Set(Array.from(readFileSync(file, 'utf8').matchAll(/meldom:(meldom-[a-z0-9-]+)/g), (match) => match[1]))) {
-        if (!agentFiles.includes(`${agent}.md`)) fail(`${relative(ROOT, file)}: spawns "meldom:${agent}" but agents/${agent}.md does not exist`);
-    }
-}
-
 // Claude does not load a skill nested deeper than `skills/<name>/SKILL.md`, so one that sits deeper is
 // invisible on that provider while working fine on Codex — the worst kind of difference to debug.
 for (const file of allFiles(ROOT)) {
@@ -188,7 +155,6 @@ const BANNED = [
     ['LOC-', 'a dead tracker key; the ticket-key placeholder is KEY-N'],
     ['.out-of-scope/', 'the out-of-scope KB is meldom notes, not a directory'],
     ['gh issue', 'meldom is the tracker; there is no GitHub issue surface'],
-    ['docs/agents/issue-tracker.md', "another tracker's config file; meldom needs none"],
     // The whole `lsp_*` family, not one member of it: the rule is "name no harness-specific tool", and
     // `lsp_servers` or `lsp_find_references` would sail past a check that only knows `lsp_diagnostics`.
     ['lsp_', 'a harness-specific tool name; say "the harness LSP tool" instead'],
@@ -196,7 +162,6 @@ const BANNED = [
     ['~/.meldom/', "the Meldom app's own runtime path, meaningless on a user's machine"],
     // This repo's own ticket prefix. Meaningless on a user's board, and the ledger's rule 5 bans it.
     ['MEL-', "this repo's own ticket prefix; the placeholder in prose is KEY-N"],
-    ['setup-matt-pocock-skills', 'a tombstoned upstream skill this plugin does not ship'],
 ];
 
 // `PORTING.md` and `CHANGELOG.md` legitimately NAME what was removed: the ledger explains each divergence, and

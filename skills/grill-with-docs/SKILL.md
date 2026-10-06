@@ -1,6 +1,7 @@
 ---
 name: grill-with-docs
-description: A relentless interview to sharpen a plan or design, which also creates docs (ADRs and glossary) as we go. Use when you have a codebase and want grilling that also records what it learns.
+description: A relentless interview to sharpen a plan or design, which also creates docs (ADR's and glossary) as we go.
+disable-model-invocation: true
 ---
 
-Call the Skill tool twice, for `meldom:grilling` and `meldom:domain-modeling`.
+Call the Skill tool twice, for "meldom:grilling" and "meldom:domain-modeling".

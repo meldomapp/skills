@@ -3,6 +3,37 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.14
+
+Every ported skill is upstream's text again, synced to mattpocock/skills `6fd9479`. Meldom's additions sit in one
+`## On Meldom` section at the bottom of a skill; above it, a skill differs from upstream only where upstream
+names a tracker or a mechanism Meldom replaces.
+
+- **Run `/meldom:setup-matt-pocock-skills` once per repo.** It records Meldom as the issue tracker in
+  `docs/agents/issue-tracker.md`, sets the triage labels, and lays out the domain docs, as upstream's setup does.
+  The engineering skills ask for it when it has not run.
+- **Breaking: `CONTEXT.md` is now `GLOSSARY.md`**, and `CONTEXT-MAP.md` is `GLOSSARY-MAP.md`, as upstream
+  renamed them. If a repo has the old files, `git mv` them: the skills only look for the new names.
+- **Breaking: invocation follows upstream.** `ask-meldom`, `to-spec`, `to-tickets`, `implement`, `triage`,
+  `wayfinder`, `improve-codebase-architecture`, `grill-with-docs` and `handoff` are user-invoked, so only a
+  user typing `/meldom:<name>` starts them; no agent can reach them through the Skill tool.
+- `implement` is upstream's loop, committing through `meldom:ship`, with the Meldom steps on top: claim, progress
+  bar, follow-ups built in the same session, review outcome, parent closing. Typechecking runs regularly, as
+  upstream says, instead of once at the end.
+- `implement-spec` lands the spec on one integration branch. Implementers use the worktrees this chat owns, and
+  are cleaned up with `worktree_remove`.
+- `triage` handles external PRs when the tracker doc's flag says so, and keeps out-of-scope records as notes
+  labelled `out-of-scope`.
+- `ask-meldom` puts `retro` at the end of the main flow and points `diagnosing-bugs` at `retro`.
+- `handoff` names where the OS temp directory is (`$TMPDIR`, else `/tmp`; `%TEMP%` on Windows).
+- `pr`'s component-tree example is a readable tree again.
+- `wizard`'s `template.sh` and `diagnosing-bugs`' HITL loop script are upstream's again: the wizard clears each stage
+  without waiting for Enter, and the HITL loop prints the two example captures by name.
+- `resolving-merge-conflicts` is removed, as upstream removed it.
+- `loop-me` is removed: upstream keeps it in `in-progress/`, its beta bucket.
+- `bulletproof` and `explore-approaches` are removed, and so are the `meldom-worker` and `meldom-reviewer` agents:
+  upstream's skills use the harness's own subagents.
+
 ## 1.0.13
 
 `code-review` reviews uncommitted work.

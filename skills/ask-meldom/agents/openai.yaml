@@ -1,3 +1,5 @@
 interface:
   display_name: "Ask Meldom"
-  short_description: "Which skill or flow fits this situation"
+  short_description: "Find the right skill or workflow"
+policy:
+  allow_implicit_invocation: false

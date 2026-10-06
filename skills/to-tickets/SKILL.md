@@ -1,17 +1,20 @@
 ---
 name: to-tickets
-description: Break a plan, spec, or the current conversation into a set of tracer-bullet Meldom tickets, each declaring its blocking edges as native `blocked_by` links. Use when the user wants to break work down, convert a plan or spec into tickets, or file implementation tickets.
+description: Break a plan, spec, or the current conversation into a set of tracer-bullet tickets, each declaring its blocking edges, published to the configured tracker (edges as text in one file per ticket locally, or native blocking links on a real tracker).
+disable-model-invocation: true
 ---
 
 # To Tickets
 
 Break a plan, spec, or conversation into a set of **tickets**: tracer-bullet vertical slices, each declaring the tickets that **block** it.
 
+The issue tracker and triage label vocabulary should have been provided to you. If not, tell the user to run `/meldom:setup-matt-pocock-skills`.
+
 ## Process
 
 ### 1. Gather context
 
-Work from whatever is already in the conversation context. If the user passes a reference (a spec path, a ticket key or ULID) as an argument, fetch it and read its full body and comments: a ticket is read with `mcp__meldom__ticket_view({ "id": "<key or ulid>", "response_format": "detailed" })`, including its `attachments[]` (Read an attached mockup or spec image) and `notes[]`. The default `concise` trims the body and caps each relation at 10 rows, which would silently cut the spec you are slicing: while the result carries `next_body_cursor`, call again with `body_offset: <next_body_cursor>`, and page `comments` / `attachments` / `notes` with `relation` + `relation_offset` when they report a `next_cursor`.
+Work from whatever is already in the conversation context. If the user passes a reference (a spec path, an issue number or URL) as an argument, fetch it and read its full body and comments.
 
 ### 2. Explore the codebase (optional)
 
@@ -52,19 +55,21 @@ Ask the user:
 
 Iterate until the user approves the breakdown.
 
-### 5. Publish the tickets to Meldom
+### 5. Publish the tickets to the configured tracker
 
-Publish the approved tickets with one `mcp__meldom__ticket_batch_create({ "entries": [...] })` call, a single transaction, in dependency order (blockers first). Blocking edges are Meldom's native links: `blocked_by_index` (0-based, within the batch) names the entries that gate each one. Every entry carries `parent_id`: the spec ticket when the source was one (`meldom:to-spec` publishes it as a spec), otherwise a plain parent created first with `mcp__meldom__ticket_create({ "title": "...", "parent_id": null })` so the slices share one family on the board. A lone slice needs no parent: publish that single ticket and stop. The tickets are agent-grabbable by construction.
+Publish the approved tickets. **How** depends on the tracker `/meldom:setup-matt-pocock-skills` configured; the tickets are the same either way, only the shape of the blocking edges changes:
+
+- **A real issue tracker (GitHub, Linear, …)** → publish one issue per ticket in dependency order (blockers first) so each ticket's blocking edges can reference real identifiers. Use the platform's native blocking relationship where it has one; otherwise set each ticket's "Blocked by" to the blocking issues. If the source was an existing issue, make each ticket its sub-issue (tracker doc's operation). Apply the `ready-for-agent` triage label unless instructed otherwise; the tickets are agent-grabbable by construction.
 
 Work the **frontier**: any ticket whose blockers are all done. For a purely linear chain that means top to bottom.
 
-Do NOT close or modify any parent ticket.
+Do NOT close or modify any parent issue.
 
-<ticket-template>
+<issue-template>
 
 ## Parent
 
-A reference to the parent ticket (if the source was an existing ticket, otherwise omit this section).
+A reference to the parent issue on the tracker (if the source was an existing issue, otherwise omit this section).
 
 ## What to build
 
@@ -77,8 +82,12 @@ The end-to-end behaviour this ticket makes work, from the user's perspective, no
 
 ## Blocked by
 
-- A reference to each blocking ticket, or "None (can start immediately)".
+- A reference to each blocking ticket, or "None (can start immediately)". Omit this section when blockers were set as native edges.
 
-</ticket-template>
+</issue-template>
 
 Avoid specific file paths or code snippets: they go stale fast. Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it and note briefly that it came from a prototype. Trim to the decision-rich parts, not a working demo, just the important bits.
+
+## On Meldom
+
+- **Always a family.** With no source issue, create a plain parent first, so the tickets share one family on the board. A lone ticket needs no parent.
