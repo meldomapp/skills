@@ -33,6 +33,9 @@ tagged `v<version>`.
   timeout or run them in the background.
 - `merge-worktree`'s peer-landing loop finds the main checkout's `MERGE_HEAD` by its absolute path, so it sees a
   merge in progress from any working directory.
+- `merge-worktree`'s waits end. The peer-landing loop gives up after 30 minutes and reports a detached
+  submodule instead of waiting on it; the merge wait stops on a closed PR or a cancelled auto-merge and gives up
+  after 20 minutes; `gh pr checks` reporting no checks right after a push is run again after 30 seconds.
 
 ## 1.0.12
 

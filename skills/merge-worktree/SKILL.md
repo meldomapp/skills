@@ -30,14 +30,17 @@ git -C <submodule-path> merge-base --is-ancestor <theirs> <ours>   # ours contai
 
 Neither contains the other → a real divergence: resolve it with your own reading of both sides.
 
-**A peer landing** — a merge in progress, `UU` entries, or a detached submodule in the main checkout that you did not create — is another agent's landing, never "unrelated changes". Wait for it in ONE shell command that re-checks every 30 seconds and returns once it clears, and touch nothing of theirs. There is no lock: this rule is the only thing keeping two landings out of each other's way.
+**A peer landing** — a merge in progress or `UU` entries in the main checkout or one of its submodules, that you did not create — is another agent's landing, never "unrelated changes". Wait for it in ONE shell command that re-checks every 30 seconds for up to 30 minutes, and touch nothing of theirs. There is no lock: this rule is the only thing keeping two landings out of each other's way.
 
 ```bash
 M=<main-checkout>
-while { test -e "$(git -C "$M" rev-parse --path-format=absolute --git-path MERGE_HEAD)" || git -C "$M" status --porcelain | grep -q '^UU' \
-  || git -C "$M" submodule foreach --quiet --recursive 'test -e "$(git rev-parse --git-path MERGE_HEAD)" || ! git symbolic-ref -q HEAD >/dev/null && echo busy; true' | grep -q busy; }
-do sleep 30; done
+busy() { test -e "$(git -C "$M" rev-parse --path-format=absolute --git-path MERGE_HEAD)" || git -C "$M" status --porcelain | grep -q '^UU' \
+  || git -C "$M" submodule foreach --quiet --recursive 'test -e "$(git rev-parse --path-format=absolute --git-path MERGE_HEAD)" && echo busy; true' | grep -q busy; }
+for i in $(seq 60); do busy || break; sleep 30; done; busy && echo STILL-BUSY
+git -C "$M" submodule foreach --quiet --recursive 'git symbolic-ref -q HEAD >/dev/null || echo "DETACHED: $displaypath"'
 ```
+
+`STILL-BUSY` → tell the user which merge is still open and carry on when they answer. A `DETACHED` submodule with no merge in progress is no landing: report it, and Phase 4 puts it back on its branch.
 
 ## Phase 1 — Preflight
 
@@ -72,7 +75,16 @@ gh pr view <number> --json state,mergeStateStatus        # state must read MERGE
 - **A merge commit, always.** Never `--squash` and never `--rebase`: a squash mints a new commit the worktree's own checkout does not have, which is what makes a superrepo pointer stale and a worktree branch look unmerged.
 - **Never delete the branch as part of the merge.** The remote branch goes in Phase 6, after removal has confirmed the work is durable.
 - **Not mergeable** → repair it INSIDE the worktree, not on the remote: `git fetch origin <base>`, `git merge origin/<base>`, resolve, push, then merge the PR.
-- **Blocked by required checks** → `gh pr merge <number> --merge --auto`, then wait in one blocking call: `gh pr checks <number> --watch --fail-fast --required`. It returns when every required check has passed or the first one fails; a failure is fixed inside the worktree and pushed. After a clean exit, `gh pr view <number> --json state` confirms `MERGED`; while it still reads `OPEN` the queued merge is landing, so re-check it every 30 seconds in one call (`until gh pr view <number> --json state -q .state | grep -qx MERGED; do sleep 30; done`). These waits, like the peer-landing loop, can outlast a default command timeout: run them with a long timeout or in the background. Waiting is a pause, not an end.
+- **Blocked by required checks** → `gh pr merge <number> --merge --auto`, then wait in one blocking call: `gh pr checks <number> --watch --fail-fast --required`. It returns when every required check has passed or the first one fails; a failure is fixed inside the worktree and pushed. If it reports no checks right after a push, wait 30 seconds and run it again. After a clean exit the queued merge is landing; re-check it every 30 seconds for up to 20 minutes in one call:
+
+  ```bash
+  for i in $(seq 40); do
+    s=$(gh pr view <number> --json state,autoMergeRequest -q '"\(.state) \(.autoMergeRequest != null)"')
+    [ "$s" = "OPEN true" ] || break; sleep 30
+  done; echo "$s"
+  ```
+
+  `MERGED false` → carry on. Anything else — `CLOSED`, `OPEN false` (auto-merge cancelled), or `OPEN true` after the ceiling — tell the user what it reads and carry on when they answer. These waits, like the peer-landing loop, can outlast a default command timeout: run them with a long timeout or in the background. Waiting is a pause, not an end.
 - Confirm `state: MERGED` before moving on.
 
 **Superrepo, right after a submodule merges**: move the worktree's own submodule checkout to the merged remote head before staging the pointer, so the pointer names a commit that is actually on the submodule's remote.
