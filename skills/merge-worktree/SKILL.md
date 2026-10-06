@@ -84,7 +84,7 @@ gh pr view <number> --json state,mergeStateStatus        # state must read MERGE
   done; echo "$s"
   ```
 
-  `MERGED false` → carry on. Anything else — `CLOSED`, `OPEN false` (auto-merge cancelled), or `OPEN true` after the ceiling — tell the user what it reads and carry on when they answer. These waits, like the peer-landing loop, can outlast a default command timeout: run them with a long timeout or in the background. Waiting is a pause, not an end.
+  A state of `MERGED` (either flag) → carry on. Anything else — `CLOSED`, `OPEN false` (auto-merge cancelled), or `OPEN true` after the ceiling — tell the user what it reads and carry on when they answer. These waits, like the peer-landing loop, can outlast a default command timeout: run them with a long timeout or in the background. Waiting is a pause, not an end.
 - Confirm `state: MERGED` before moving on.
 
 **Superrepo, right after a submodule merges**: move the worktree's own submodule checkout to the merged remote head before staging the pointer, so the pointer names a commit that is actually on the submodule's remote.
