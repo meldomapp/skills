@@ -34,7 +34,7 @@ Neither contains the other → a real divergence: resolve it with your own readi
 
 ```bash
 M=<main-checkout>
-while { test -e "$(git -C "$M" rev-parse --git-path MERGE_HEAD)" || git -C "$M" status --porcelain | grep -q '^UU' \
+while { test -e "$(git -C "$M" rev-parse --path-format=absolute --git-path MERGE_HEAD)" || git -C "$M" status --porcelain | grep -q '^UU' \
   || git -C "$M" submodule foreach --quiet --recursive 'test -e "$(git rev-parse --git-path MERGE_HEAD)" || ! git symbolic-ref -q HEAD >/dev/null && echo busy; true' | grep -q busy; }
 do sleep 30; done
 ```

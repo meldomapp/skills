@@ -31,6 +31,8 @@ tagged `v<version>`.
 - `merge-worktree` waits on required checks with `gh pr checks --watch --fail-fast --required` and on a peer's
   landing with one 30-second re-check loop, instead of an open-ended poll, and says to give those waits a long
   timeout or run them in the background.
+- `merge-worktree`'s peer-landing loop finds the main checkout's `MERGE_HEAD` by its absolute path, so it sees a
+  merge in progress from any working directory.
 
 ## 1.0.12
 
