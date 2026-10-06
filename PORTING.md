@@ -111,6 +111,13 @@ The plugin is public and MIT. No path into the Meldom desktop repo, no `~/.meldo
 maintainer-specific rule file names, no harness-specific tool names presented as if every harness has them, no
 `model:` pin on an agent.
 
+### 7. Every wait and every read has an end
+
+A wait names one blocking command (`gh pr checks --watch --fail-fast --required`) or one shell loop with an
+interval and a ceiling ("every 30 seconds for up to 30 minutes"), never an open-ended "poll until". A skill that
+reads a spec asks `ticket_view` for `response_format: "detailed"` and pages the body by `next_body_cursor`, so a
+long spec is never read trimmed. `merge-worktree` and `implement` are the models.
+
 ## Mapping
 
 | Upstream                                    | Local                           | Section |
