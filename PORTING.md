@@ -161,7 +161,7 @@ spec is never read trimmed.
   commits; a ticket key argument, the conversation's tickets and a key in the branch name are checked first as
   spec sources; `CLAUDE.md` and `AGENTS.md` count as standards; and the Spec findings are posted to the ticket
   with `mcp__meldom__comment_create`.
-- `## On Meldom` (MEL-5186): done bug tickets for the touched area are searched with `mcp__meldom__ticket_list`, and
+- `## On Meldom`: done bug tickets for the touched area are searched with `mcp__meldom__ticket_list`, and
   a match is named in the findings as a class of bug that bit the project before. Past fixes live on bug tickets,
   not in a second store, so this is where review recalls them.
 
@@ -174,7 +174,7 @@ spec is never read trimmed.
 
 - `## On Meldom`: an app running as a Meldom command has its output read with `mcp__meldom__command_output`
   instead of pasted logs, and a bug worth tracking is filed with `mcp__meldom__ticket_create`.
-- `## On Meldom` (MEL-5186): done bug tickets are searched for the error before debugging
+- `## On Meldom`: done bug tickets are searched for the error before debugging
   (`mcp__meldom__ticket_list` with `type: "bug"`, `statuses: ["done"]` and a short query, 2-3 phrasings); a fixed
   bug's ticket states the symptom, root cause and fix with its affected files; and the non-obvious why of a fix is
   a comment next to the code, never removed unread. Past fixes live on bug tickets rather than in a memory store,
@@ -209,7 +209,7 @@ Global rule 1 only.
   each ticket `done` as it passes; build every follow-up the session files, under the ticket's parent; record
   the review's outcome per ticket; and close the parent once every child is done. Meldom never rolls parent
   status up, and without the follow-up rule the build left tickets it had filed open.
-- `## On Meldom` (MEL-5186): the same three bug rules as `diagnosing-bugs` — search done bug tickets before
+- `## On Meldom`: the same three bug rules as `diagnosing-bugs` — search done bug tickets before
   debugging, keep a fixed bug's ticket useful, write the why as a comment next to the code — since an implement run
   meets errors and fixes bugs as it builds.
 
@@ -256,7 +256,7 @@ filed as Meldom tickets.
 
 Global rule 1, plus `## On Meldom`: the loop runs the seam's tests, and whole-project checks run once, after the
 last slice. `meldom:implement` drives this skill once per ticket, so without it each ticket ran the full suite.
-The same section carries the three bug rules of `diagnosing-bugs` (MEL-5186): search done bug tickets before
+The same section carries the three bug rules of `diagnosing-bugs`: search done bug tickets before
 debugging, keep a fixed bug's ticket useful, write the why as a comment next to the code.
 
 ### teach (`productivity/teach`)
