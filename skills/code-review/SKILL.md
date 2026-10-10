@@ -92,3 +92,4 @@ Reporting them separately stops one axis from masking the other.
 - **More spec sources, checked first:** a ticket key the user passed as an argument, then the tickets this conversation tracks (`mcp__meldom__conversation_status`), then a ticket key in the branch name.
 - **Standards sources** include `CLAUDE.md` and `AGENTS.md`.
 - **Post the Spec findings to the ticket.** When the spec was a Meldom ticket, post the **Spec** section to it as one comment with `mcp__meldom__comment_create`, so the review lives on the board. The Standards findings stay in the conversation: they are about the repo, not about what the ticket asked for.
+- **Check the bug history of the touched area.** Search done bug tickets for it with `mcp__meldom__ticket_list({ "type": "bug", "statuses": ["done"], "query": "<file, function or module name>" })`, 2-3 phrasings. When one matches a change under review, say so in the findings: this class of bug bit the project before (`KEY-N`).
