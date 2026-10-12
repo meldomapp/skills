@@ -115,4 +115,4 @@ Good interfaces make testing natural:
 
 ## On Meldom
 
-- **No subagents?** When the provider has none (Codex), do the [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md) work in the current session instead, one approach at a time, following the same brief.
+- **No subagents?** When the current environment has no subagent tools, do the [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md) work in the current session instead, one approach at a time, following the same brief.

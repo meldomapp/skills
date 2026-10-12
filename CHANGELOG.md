@@ -3,6 +3,17 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.16
+
+- Shared-checkout implementation runs review all tickets together after final checks, fix findings and
+  re-review until clean, then commit through the ship card. Upstream skill sections stay unchanged.
+- Implementation keeps parent tickets in progress through final review, and records review outcomes per ticket.
+- TDD runs regular typechecks during implementation and the full suite after the last slice, with affected
+  checks repeated after fixes.
+- Subagent fallbacks depend on the tools available in the current environment.
+- Bug diagnosis and TDD search completed bug tickets for past fixes, keep the root cause and fix on the ticket,
+  and record non-obvious reasons beside the code. Code review checks the bug history of the touched area.
+
 ## 1.0.15
 
 - `implement`, `implement-spec`, `to-spec`, `to-tickets`, `ask-meldom` and `handoff` are model-invoked again, so a
