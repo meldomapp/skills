@@ -204,8 +204,8 @@ Global rule 1 only.
 
 ### implement (`engineering/implement`)
 
-- `## On Meldom`: commit through `meldom:ship`; claim tickets as `in_progress`; report to the progress bar; mark
-  each ticket `done` as it passes; build every follow-up the session files, under the ticket's parent; review
+- `## On Meldom`: commit through `meldom:ship`; claim tickets as `in_progress`; report to the progress bar with
+  one step per ticket key, which the ticket's move to `done` advances; mark each ticket `done` as it passes; build every follow-up the session files, under the ticket's parent; review
   all tickets supplied to the run against its starting commit, fix and re-review until clean, then commit;
   record the final review's outcome per ticket; and close the parent after final checks and review pass and
   every child is done. Meldom never rolls parent
@@ -218,8 +218,8 @@ Global rule 1 only.
 - `## On Meldom`: worktrees are the ones `mcp__meldom__worktree_list` reports for this chat, never
   `git worktree add`, and are removed with `mcp__meldom__worktree_remove`; the orchestrator owns every ticket
   state and hands subagents the ticket body; an in-session fallback when subagent tools are unavailable;
-  commits go through `meldom:ship` with only the ticket's paths; progress-bar reporting; and the final review's
-  outcome per ticket.
+  commits go through `meldom:ship` with only the ticket's paths; progress-bar reporting by ticket key; and the
+  final review's outcome per ticket.
 - Shared-checkout replacement for steps 3–6 and 9: stay on the current branch, implement sequentially without
   commits, resets or merges, review all changes against the starting commit, then commit and open a requested
   PR. Separate worktrees require an explicit user request and retain upstream's commits before merging.

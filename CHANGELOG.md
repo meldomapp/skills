@@ -3,6 +3,12 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## Unreleased
+
+- `implement` and `implement-spec` write each progress step as its ticket's key (`KEY-42:M`) and send no `done`
+  per ticket: moving the ticket to `done` advances the step. `add` takes keys too. Needs a Meldom desktop release
+  that links key steps to tickets; an older app reads the key as a plain step name and never advances it.
+
 ## 1.0.16
 
 - Shared-checkout implementation runs review all tickets together after final checks, fix findings and
