@@ -71,7 +71,7 @@ Call `ship_review` (`mcp__meldom__ship_review`) instead of running git directly:
 - `branch` / `remote` — the current branch and its remote (`origin` unless the branch tracks another).
 - `root` — the Phase 1 toplevel, the absolute path the `files` paths are relative to.
 
-The call parks and returns `{ outcome, selectedFiles, selectedAllProposed, message, push }`, plus `baseCommit` in patch mode:
+The call blocks until a person decides on the card, which can take many minutes, and only then returns `{ outcome, selectedFiles, selectedAllProposed, message, push }`, plus `baseCommit` in patch mode. Keep it open and never end your turn while it waits: ending the turn takes the card back, nothing is committed, and the card has to be shown again. In Codex code mode the `exec` cell yields while the call still runs; keep calling `wait` on that cell until it returns, which it does within four hours at most, and write no final message before then.
 
 ### `confirmed`
 
@@ -135,6 +135,7 @@ After a successful push, offer to open a PR.
 | Detached HEAD                            | Stop with "Not on a branch"                                                                                 |
 | Branch name breaks the convention        | Propose it on the card; rename locally only after confirmation, and leave an old remote ref alone           |
 | `ship_review` errored, so run git direct | Never. Retry the card or stop. Committing without a card ships work nobody approved                         |
+| Ended the turn while the card waits      | The card is taken back. Keep waiting on the call (Codex: keep calling `wait` on its cell) until it returns  |
 | `--mine` staged files you never touched  | `selectedFiles` disagreeing with your `agentTouched: true` set is a red flag, not consent. Stop and confirm |
 | `--mine` on shared files                 | Supply exact per-file patches and their base commit; the card selects the proposed patches                  |
 | Edits overlap in a shared file           | Separate only changes whose ownership and dependencies are clear; ask about the rest                        |

@@ -3,6 +3,11 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.18
+
+- `ship` says `ship_review` blocks until a person decides, and that ending the turn while it waits takes the card
+  back. In Codex code mode the agent keeps calling `wait` on the `exec` cell until the call returns.
+
 ## 1.0.17
 
 - `implement` and `implement-spec` write each progress step as its ticket's key (`KEY-42:M`) and send no `done`
