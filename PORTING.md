@@ -28,8 +28,9 @@ These hold for every ported file. They are not repeated in the per-skill section
 
 ### 1. Namespacing
 
-The plugin is installed as `meldom`, so both providers address its skills as `meldom:<name>`. Exactly these
-get the prefix:
+The plugin is installed as `meldom`, so Claude Code and Codex address its skills as `meldom:<name>`. OpenCode
+has no plugin namespace, so `index.js` registers each skill under the ID `meldom:<name>` and every provider
+resolves the same name. Exactly these get the prefix:
 
 - an **operative instruction to call the Skill tool**: upstream's `Call the Skill tool with "grilling"` is
   `Call the Skill tool with "meldom:grilling"`; a bare name does not resolve for someone who installed only
@@ -60,7 +61,8 @@ one of those becomes a phantom hunk in the next sync.
 Upstream's convention is [`.agents/invocation.md`](https://github.com/mattpocock/skills/blob/main/.agents/invocation.md), and every port follows upstream's flag. A
 user-invoked skill sets `disable-model-invocation: true` in `SKILL.md` **and**
 `policy.allow_implicit_invocation: false` in `agents/openai.yaml`; a model-invoked skill sets neither. The two
-must always agree, and `scripts/validate.mjs` enforces it.
+must always agree, and `scripts/validate.mjs` enforces it. OpenCode reads the `SKILL.md` flag: `index.js` turns
+it into the skill's `autoinvoke: false`.
 
 One exception, so Meldom agents working without a human can build from tickets, find the right skill and hand
 off at a phase boundary: `implement`, `implement-spec`, `to-spec`, `to-tickets`, `ask-meldom` and `handoff` are

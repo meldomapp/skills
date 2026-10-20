@@ -3,6 +3,13 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## Unreleased
+
+- **OpenCode.** The repository is also an OpenCode 2.1 plugin: `opencode plugin add github:meldomapp/skills`.
+  `index.js` registers every skill under the ID `meldom:<skill>`, the name the skills already use for each other,
+  and a user-invoked skill is registered with `autoinvoke: false`. `package.json` is the third manifest, and
+  `scripts/validate.mjs` checks that its name and version match the other two.
+
 ## 1.0.18
 
 - `ship` says `ship_review` blocks until a person decides, and that ending the turn while it waits takes the card
