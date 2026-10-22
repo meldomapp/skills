@@ -54,6 +54,15 @@ if (claudePlugin && codexPlugin) {
     if (!/^\d+\.\d+\.\d+$/.test(String(claudePlugin.version))) fail(`plugin version must be semver, got "${claudePlugin.version}"`);
 }
 
+// OpenCode installs the repo as an npm package, so `package.json` is its manifest and its version is the one an
+// OpenCode user sees. It has to move with the other two.
+const openCodePackage = readJson('package.json');
+
+if (claudePlugin && openCodePackage) {
+    if (openCodePackage.name !== claudePlugin.name) fail(`package.json: name "${openCodePackage.name}" differs from the plugin name "${claudePlugin.name}"`);
+    if (openCodePackage.version !== claudePlugin.version) fail(`package.json: version "${openCodePackage.version}" differs from the plugin version "${claudePlugin.version}"`);
+}
+
 // --- Marketplaces --------------------------------------------------------------------------------------
 
 const claudeMarket = readJson('.claude-plugin/marketplace.json');
@@ -250,4 +259,4 @@ if (errors.length > 0) {
     console.error(`\n${errors.length} problem(s) found.`);
     process.exit(1);
 }
-console.log(`ok: ${skillNames.length} skill(s), both manifests at ${claudePlugin?.version}`);
+console.log(`ok: ${skillNames.length} skill(s), all three manifests at ${claudePlugin?.version}`);

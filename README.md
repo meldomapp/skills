@@ -1,7 +1,8 @@
 # Meldom skills
 
-The agent workflows [Meldom](https://meldom.com) is built around, as one plugin for **Claude Code** and
-**Codex**. Install it once per provider and the same recipes work in the Meldom app and in your own terminal.
+The agent workflows [Meldom](https://meldom.com) is built around, as one plugin for **Claude Code**, **Codex**
+and **OpenCode**. Install it once per provider and the same recipes work in the Meldom app and in your own
+terminal.
 
 Meldom itself ships no skill files and never writes into `~/.claude/skills` or `~/.agents/skills`. This
 repository is the only copy, and installing it is your provider's own job.
@@ -22,19 +23,32 @@ codex plugin marketplace add meldomapp/skills
 codex plugin add meldom@meldom
 ```
 
-Both providers namespace a plugin's skills, so they are invoked as `/meldom:<skill>` in Claude Code and
-`$meldom:<skill>` in Codex. Nothing here can shadow a skill of your own that happens to share a name.
-
-**Updating.** The two providers differ, and the obvious command is wrong on one of them. Codex's needs the
-marketplace name, or it upgrades every marketplace you have added:
+**OpenCode** (2.1 or later)
 
 ```bash
-claude plugin update meldom@meldom       # refreshes the marketplace itself; `plugin install` will NOT upgrade
-codex plugin marketplace upgrade meldom  # replaces the version-keyed cache; no reinstall needed
+opencode plugin add github:meldomapp/skills
 ```
 
-**Removing** — `claude plugin uninstall meldom@meldom` or `codex plugin remove meldom@meldom`. Both leave the
-marketplace registered, so installing again is one command.
+OpenCode installs the repository as a package and adds it to `plugins` in your global `opencode.json(c)`. Its
+`index.js` registers every skill in `skills/`.
+
+Claude Code and Codex namespace a plugin's skills, so they are invoked as `/meldom:<skill>` in Claude Code and
+`$meldom:<skill>` in Codex. OpenCode has no plugin namespace, so the plugin registers each skill under the ID
+`meldom:<skill>` itself. Nothing here can shadow a skill of your own that happens to share a name.
+
+**Updating.** The providers differ, and the obvious command is wrong on one of them. Codex's needs the
+marketplace name, or it upgrades every marketplace you have added. OpenCode's takes the exact spec you
+installed with:
+
+```bash
+claude plugin update meldom@meldom                # refreshes the marketplace itself; `plugin install` will NOT upgrade
+codex plugin marketplace upgrade meldom           # replaces the version-keyed cache; no reinstall needed
+opencode plugin update github:meldomapp/skills    # reinstalls the default branch's newest commit
+```
+
+**Removing** — `claude plugin uninstall meldom@meldom`, `codex plugin remove meldom@meldom` or
+`opencode plugin remove github:meldomapp/skills`. Claude Code and Codex leave the marketplace registered, so
+installing again is one command.
 
 ## Skills
 
@@ -87,9 +101,10 @@ sync tell a real upstream change from a deliberate local edit, instead of guessi
 
 ## Contributing
 
-`node scripts/validate.mjs` is what CI runs. It checks that both manifests parse and agree on name and version,
-that both marketplace files reference the plugin, that every `skills/<name>/SKILL.md` declares a
-`description` and a `name` equal to its folder, and that every skill carries an `agents/openai.yaml` whose
+`node scripts/validate.mjs` is what CI runs. It checks that the three manifests (Claude's and Codex's
+`plugin.json`, and OpenCode's `package.json`) parse and agree on name and version, that both marketplace
+files reference the plugin, that every `skills/<name>/SKILL.md` declares a `description` and a `name` equal to
+its folder, and that every skill carries an `agents/openai.yaml` whose
 Codex policy agrees with the Claude `disable-model-invocation` flag. It also checks that every skill has a row
 in the table above, an entry in the `ask-meldom` map, and a section in [PORTING.md](PORTING.md). Run it before
 opening a pull request.
