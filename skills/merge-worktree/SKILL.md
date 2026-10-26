@@ -13,7 +13,7 @@ A landing runs to the end. A conflict, a dirty main checkout, a PR GitHub calls 
 
 **Exactly two things end a landing early:**
 
-1. `worktree_remove` reports `git-failed` with `proof: 'local-only'` — commits exist on no remote ref, so removing would destroy the only copy. Report it verbatim and stop.
+1. `worktree_remove` reports `git-failed` with `proof: 'local-only'` — commits exist on no ref that survives the removal, so removing would destroy the only copy. Report it verbatim and stop.
 2. The user cancels a ship card.
 
 Nothing else qualifies. Do not widen this list.
@@ -137,7 +137,7 @@ Read the answer's `status`:
 - **`commands-running`** → the answer lists the running commands. Stop them, then call again.
 - **`not-found`** → you passed the wrong target. Correct it and call again.
 - **`git-failed`** → read the answer's `error` and its `proof`:
-  - `proof: 'local-only'` is **the one stop**. The branch has commits on no remote ref (they are listed in `localOnlyCommits`), so removing would destroy the only copy. Report the error verbatim and stop. Never work around it with raw git, and never force.
+  - `proof: 'local-only'` is **the one stop**. The branch has commits on no ref that survives the removal (they are listed in `localOnlyCommits`), so removing would destroy the only copy. Report the error verbatim and stop. Never work around it with raw git, and never force.
   - Any other `git-failed` is a pause: fix exactly what the error names — uncommitted work goes back through Phase 2 — then call again.
 
 A refusal can also come back as a tool error rather than a status (an unmanaged worktree, a target that is not Meldom's, no verified authority). Report those verbatim and stop; they are for the user to resolve, not for you to route around.
