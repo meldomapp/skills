@@ -5,6 +5,10 @@ tagged `v<version>`.
 
 ## Unreleased
 
+- Agents create worktrees themselves when isolation helps, through `worktree_create` or `conversation_start`'s
+  `worktree`, both with an optional `base`, never `git worktree add`. `implement-spec` no longer waits for a user
+  request, and `merge-worktree` notes that the app's sweep of merged worktrees is only a safety net. Needs a Meldom
+  desktop with `worktree_create`.
 - **OpenCode.** The repository is also an OpenCode 2.1 plugin: `opencode plugin add github:meldomapp/skills`.
   `index.js` registers every skill under the ID `meldom:<skill>`, the name the skills already use for each other,
   and a user-invoked skill is registered with `autoinvoke: false`. `package.json` is the third manifest, and

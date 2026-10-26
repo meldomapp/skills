@@ -123,7 +123,7 @@ The stash is the user's own work. Pop it before the landing ends, whatever else 
 
 ## Phase 5 — Remove the worktree
 
-Removal goes through the `worktree_remove` MCP tool (`mcp__meldom__worktree_remove`) and nowhere else.
+Removal goes through the `worktree_remove` MCP tool (`mcp__meldom__worktree_remove`) and nowhere else. Call it yourself once the work has landed. The app also removes an agent-created worktree once its branch is merged and the worktree has been quiet for an hour, but that sweep is only a safety net.
 
 **Never `git worktree remove`, forced or not, in any form.** `--force` is what a worktree with submodules needs (git refuses outright once submodules are initialized), and it deletes each submodule's own git dir — the only copy of any submodule commit that has not reached the main checkout. The tool instead fetches every submodule's HEAD into the main checkout first, verifies it is reachable, removes the worktree, deletes its branch, and confirms both are gone.
 
