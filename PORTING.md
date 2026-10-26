@@ -217,14 +217,16 @@ Global rule 1 only.
 
 ### implement-spec (`engineering/implement-spec`)
 
-- `## On Meldom`: worktrees are the ones `mcp__meldom__worktree_list` reports for this chat, never
-  `git worktree add`, and are removed with `mcp__meldom__worktree_remove`; the orchestrator owns every ticket
+- `## On Meldom`: worktrees are created through `mcp__meldom__worktree_create` or `conversation_start`'s
+  `worktree` (with `base` set to the integration branch), never `git worktree add`, are the ones
+  `mcp__meldom__worktree_list` marks `ownedByCaller`, and are removed with `mcp__meldom__worktree_remove`; the orchestrator owns every ticket
   state and hands subagents the ticket body; an in-session fallback when subagent tools are unavailable;
   commits go through `meldom:ship` with only the ticket's paths; progress-bar reporting by ticket key; and the
   final review's outcome per ticket.
 - Shared-checkout replacement for steps 3–6 and 9: stay on the current branch, implement sequentially without
   commits, resets or merges, review all changes against the starting commit, then commit and open a requested
-  PR. Separate worktrees require an explicit user request and retain upstream's commits before merging.
+  PR. Separate worktrees are the agent's choice when isolation helps and retain upstream's commits before
+  merging.
   Both workflows fix and re-review findings until clean before completing.
 
 ### improve-codebase-architecture (`engineering/improve-codebase-architecture`)
