@@ -84,7 +84,7 @@ A ported skill changes only where upstream names a tracker other than Meldom, or
 | issue numbers (`#42`) for a tracker issue        | `KEY-42` (rule 5)                                                                 |
 | the `.out-of-scope/` directory                   | Meldom notes labelled `out-of-scope`                                              |
 | commit your work                                 | the Skill tool with `meldom:ship`                                                 |
-| a worktree per subagent, cleaning them up        | the worktrees `mcp__meldom__worktree_list` reports for this chat, `mcp__meldom__worktree_remove` |
+| a worktree per subagent, cleaning them up        | `mcp__meldom__worktree_create` with `enter: false` (without it the calling chat moves in, which is right only for its own work), or a child chat through `conversation_start`'s `worktree`; the worktrees `mcp__meldom__worktree_list` reports for this chat, `mcp__meldom__worktree_remove` |
 
 No `gh issue`, no `.scratch/` directory, no `.out-of-scope/` directory.
 
@@ -217,8 +217,9 @@ Global rule 1 only.
 
 ### implement-spec (`engineering/implement-spec`)
 
-- `## On Meldom`: worktrees are created through `mcp__meldom__worktree_create` or `conversation_start`'s
-  `worktree` (with `base` set to the integration branch), never `git worktree add`, are the ones
+- `## On Meldom`: worktrees are created through `mcp__meldom__worktree_create` (with `enter: false`, so the
+  orchestrator stays on its own checkout) or `conversation_start`'s `worktree`, both with `base` set to the
+  integration branch, never `git worktree add`, are the ones
   `mcp__meldom__worktree_list` marks `ownedByCaller`, and are removed with `mcp__meldom__worktree_remove`; the orchestrator owns every ticket
   state and hands subagents the ticket body; an in-session fallback when subagent tools are unavailable;
   commits go through `meldom:ship` with only the ticket's paths; progress-bar reporting by ticket key; and the

@@ -5,6 +5,9 @@ tagged `v<version>`.
 
 ## Unreleased
 
+- `implement-spec` makes its implementers' worktrees with `worktree_create` `enter: false`: by default the
+  tool now moves the calling chat into the worktree, and an orchestrator stays on its own checkout. Needs a Meldom
+  desktop with `enter` on `worktree_create`.
 - Agents create worktrees themselves when isolation helps, through `worktree_create` or `conversation_start`'s
   `worktree`, both with an optional `base`, never `git worktree add`. `implement-spec` no longer waits for a user
   request, and `merge-worktree` notes that the app's sweep of merged worktrees is only a safety net. Needs a Meldom
