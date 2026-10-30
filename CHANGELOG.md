@@ -3,11 +3,11 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
-## Unreleased
+## 1.0.19
 
 - `implement-spec` makes its implementers' worktrees with `worktree_create` `enter: false`: by default the
-  tool now moves the calling chat into the worktree, and an orchestrator stays on its own checkout. Needs a Meldom
-  desktop with `enter` on `worktree_create`.
+  tool now moves the calling chat into the worktree, and an orchestrator stays on its own checkout. Needs Meldom
+  desktop 0.0.24 or later, whose `worktree_create` takes `enter`.
 - Agents create worktrees themselves when isolation helps, through `worktree_create` or `conversation_start`'s
   `worktree`, both with an optional `base`, never `git worktree add`. `implement-spec` no longer waits for a user
   request, and `merge-worktree` notes that the app's sweep of merged worktrees is only a safety net. Needs a Meldom
