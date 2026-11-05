@@ -1,16 +1,25 @@
 name: validate
 
+# A public repository's minutes are free, so main is checked on every push too: it also takes direct commits.
 on:
   push:
     branches: [main]
   pull_request:
 
+concurrency:
+  group: validate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
       - run: node scripts/validate.mjs
