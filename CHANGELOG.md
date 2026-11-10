@@ -3,7 +3,7 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
-## Unreleased
+## 1.0.20
 
 - Synced to mattpocock/skills `4ae2317`. Subagents start with a fresh context window (`code-review`,
   `codebase-design`, `grilling`, `implement-spec`, `improve-codebase-architecture`, `research`, `wayfinder`), and
