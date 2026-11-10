@@ -3,6 +3,20 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## Unreleased
+
+- Synced to mattpocock/skills `4ae2317`. Subagents start with a fresh context window (`code-review`,
+  `codebase-design`, `grilling`, `implement-spec`, `improve-codebase-architecture`, `research`, `wayfinder`), and
+  `implement-spec` uses a fresh implementer per ticket and for the review fixes. `code-review` searches the repo for
+  standards files and runs both sub-agents in the foreground. `implement` fetches a passed ticket and states its
+  title first. `diagnosing-bugs` proves a forced mutation landed before trusting the red. `tdd` notes what each
+  proposed seam catches and misses. `grilling` words each question so "yes" accepts the recommendation. `wayfinder`
+  carries only `wayfinder:` labels, writes cross-references with real ids, opens no PR for research branches and
+  resolves a ticket as the type its label names. `teach` resolves workspace paths from where it ran and varies the
+  correct quiz answer's position. `ask-meldom` reads a skill's `SKILL.md` before describing it. `wizard`'s template
+  takes the upstream readline, `.env` quoting, symlink and EOF fixes. `setup-matt-pocock-skills` offers to rename a
+  legacy `CONTEXT.md`, and the Meldom tracker template reads a PR's body as well as its comments.
+
 ## 1.0.19
 
 - `implement-spec` makes its implementers' worktrees with `worktree_create` `enter: false`: by default the

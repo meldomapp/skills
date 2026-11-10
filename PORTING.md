@@ -5,7 +5,7 @@ the single source of truth for **what we changed and why**. A sync agent reads i
 change from a deliberate local edit: a difference from upstream that is not written down here is a bug in the
 port.
 
-- **Upstream baseline**: `6fd9479` (checked 2026-10-06)
+- **Upstream baseline**: `4ae2317` (checked 2026-11-10)
 - **Upstream buckets**: `skills/engineering/`, `skills/productivity/`, `skills/in-progress/`, `skills/misc/`.
   Skills are matched by **leaf folder name**, not by bucket.
 - **Mapping**: the sync tool keeps a machine-readable `upstream name -> local name` map alongside the commit it
@@ -261,6 +261,8 @@ filed as Meldom tickets.
   template's shape: conventions, the PRs-as-a-request-surface flag (with the `gh pr` commands, since PRs still
   live on GitHub), the "publish" and "fetch" sections, a "resolve a ticket" section `implement-spec` relies on,
   and the wayfinding operations, each as an `mcp__meldom__*` call.
+- Section A's reachable-repo paragraph and the step that creates missing triage labels with `gh label create` /
+  `glab label create` are dropped: a Meldom tracker needs no git remote, and a Meldom ticket takes any label string.
 
 ### tdd (`engineering/tdd`)
 
@@ -271,7 +273,7 @@ debugging, keep a fixed bug's ticket useful, write the why as a comment next to 
 
 ### teach (`productivity/teach`)
 
-No divergence.
+Global rule 1 only.
 
 ### to-questionnaire (`productivity/to-questionnaire`)
 
@@ -323,6 +325,7 @@ them out of its own plugin too.
 | `claude-handoff`             | `in-progress/`: beta.                                                           |
 | `loop-me`                    | `in-progress/`: beta.                                                           |
 | `setup-ts-deep-modules`      | `in-progress/`: beta.                                                           |
+| `software-factory`           | `in-progress/`: beta.                                                           |
 | `writing-beats`              | `in-progress/`: beta.                                                           |
 | `writing-fragments`          | `in-progress/`: beta.                                                           |
 | `writing-shape`              | `in-progress/`: beta.                                                           |
