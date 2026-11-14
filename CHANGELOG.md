@@ -3,6 +3,11 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## Unreleased
+
+- `implement` loads when the user says "implement", or asks to build, execute or work on a ticket, spec or
+  plan, not only on `/meldom:implement`.
+
 ## 1.0.20
 
 - Synced to mattpocock/skills `4ae2317`. Subagents start with a fresh context window (`code-review`,
