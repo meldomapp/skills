@@ -3,7 +3,7 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
-## Unreleased
+## 1.0.21
 
 - `implement` loads when the user says "implement", or asks to build, execute or work on a ticket, spec or
   plan, not only on `/meldom:implement`.
