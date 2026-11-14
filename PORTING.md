@@ -67,7 +67,9 @@ it into the skill's `autoinvoke: false`.
 One exception, so Meldom agents working without a human can build from tickets, find the right skill and hand
 off at a phase boundary: `implement`, `implement-spec`, `to-spec`, `to-tickets`, `ask-meldom` and `handoff` are
 **model-invoked** here, though upstream makes them user-invoked. Their
-`disable-model-invocation` line and `policy` block are dropped; everything else stays upstream's.
+`disable-model-invocation` line and `policy` block are dropped; everything else stays upstream's, except that
+`implement`'s description gains a trailing `Use when…` clause naming the words that should load it. Upstream
+wrote that description for a slash command, and without the clause the model rarely picks the skill on its own.
 
 ### 4. Meldom is the tracker
 
