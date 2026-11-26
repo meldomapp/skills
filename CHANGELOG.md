@@ -3,6 +3,12 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
+## 1.0.22
+
+- `code-review` loads when the user says "review" or "code review", not only when they name a branch, a PR or
+  work in progress. On Claude Code its built-in `code-review` still wins those words; set
+  `"skillOverrides": {"code-review": "user-invocable-only"}` in `settings.json` so only `/code-review` runs it.
+
 ## 1.0.21
 
 - `implement` loads when the user says "implement", or asks to build, execute or work on a ticket, spec or

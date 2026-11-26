@@ -158,6 +158,9 @@ spec is never read trimmed.
 
 ### code-review (`engineering/code-review`)
 
+- The description's `Use when…` clause opens with `the user says "review" or "code review"`. Upstream's clause
+  names only reviewing a branch, a PR or work in progress, and on a bare "review" or "code review" the model
+  reviewed by hand or picked another review skill.
 - Replacement: spec source 1 is Meldom ticket keys (`KEY-123`) in the commit messages, and spec source 3 drops
   `.scratch/`.
 - `## On Meldom`: uncommitted work is in scope (on a dirty tree, `git diff $(git merge-base <fp> HEAD)` plus
