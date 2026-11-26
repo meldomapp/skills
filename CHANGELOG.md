@@ -3,7 +3,7 @@
 All notable changes to the `meldom` plugin. The version is the one both manifests carry, and every release is
 tagged `v<version>`.
 
-## Unreleased
+## 1.0.22
 
 - `code-review` loads when the user says "review" or "code review", not only when they name a branch, a PR or
   work in progress. On Claude Code its built-in `code-review` still wins those words; set
